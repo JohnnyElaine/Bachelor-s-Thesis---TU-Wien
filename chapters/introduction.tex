@@ -1,12 +1,9 @@
 \chapter{Introduction}
-\todo{Problem Statement}
-General parallel processing pipeline for edge computing cases, when the tasks are real time. For evaluation purposes, we used a video stream. For computation, we used YOLOv11 inference.
-Goal: uphold a certain level of QoE while ensuring usable inference results. \cite{lin_murmuration_2024}
 
 \section{Motivation}
-The rapid proliferation of Internet of Things (IoT) devices, mobile computing applications, and real-time sensor networks has led to an exponential increase in data generated at the edge of the network. Consequently, edge computing to emerge as a critical technology in contemporary distributed systems. The core promise of edge computing lies in its capacity to
-reduce latency, enhance privacy, save bandwidth and improve responsiveness by processing data closer to the sources of generation \cite{Edge intelligence: The confluence of edge computing and artificial intelligence}. Consequently, edge architectures must be increasingly adopted to meet the
-stringent latency and computational requirements of real-time, data-intensive applications \cite{sedlak_active_2024}. However, edge computing is fundamentally challenged by resource limitations, heterogeneity, and the unpredictability of local operating environments. This is further exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. As O’Quinn et al. \cite{oquinn_environment-aware_2025} observe, "IoT and edge-based inference systems require unique solu
+The rapid proliferation of Internet of Things (IoT) devices, mobile computing applications, and real-time sensor networks has led to an exponential increase in data generated at the edge of the network. Consequently, edge computing emerged as a critical technology in contemporary distributed systems. The core promise of edge computing lies in its capacity to
+reduce latency, enhance privacy, save bandwidth, and improve responsiveness by processing data closer to the sources of generation \cite{deng_edge_2020}. Consequently, edge architectures must be increasingly adopted to meet the
+stringent latency and computational requirements of real-time, data-intensive applications \cite{sedlak_active_2024}. However, edge computing is fundamentally challenged by resource limitations, heterogeneity, and the unpredictability of local operating environments. This is further exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. As O’Quinn et al. observe in \cite{oquinn_environment-aware_2025}, "IoT and edge-based inference systems require unique solu
 tions to overcome resource limitations and unpredictable environments." 
 
 Traditional approaches to resource management in distributed systems commonly rely on
@@ -17,8 +14,48 @@ adaptation difficult under rapidly changing workloads and operational conditions
 
 In response to these limitations, advanced approaches that incorporate predictive and adaptive
 capabilities are necessary. Active Inference (AIF), a concept derived from neuroscience, as introduced by Karl Friston in \cite{friston_free-energy_2010}, has recently emerged as a methodology to address such challenges. AIF provides a unified mathematical framework enabling agents to
-continually anticipate and adapt to uncertainty through perception-action cycle \cite{friston_active_2016}\cite{lanillos_active_2021}. This thesis addresses the challenge of integrating AIF principles in a distributed system environment to adapt resource allocation and maintain QoS and (QoE) under strict constraints.
+continually anticipate and adapt to uncertainty through perception-action cycle \cite{friston_active_2016}, \cite{lanillos_active_2021}. This thesis addresses the challenge of integrating AIF principles in a distributed system environment to adapt resource allocation and maintain QoS and QoE under strict constraints.
 
+\section{Challanges and Problem Definition}
+Designing adaptive edge systems for real-time data streams presents several key
+challenges. First, edge environments are highly heterogeneous, with varying capabilities and
+rapidly shifting workloads \cite{danilenka_adaptive_2025}. Especially as Artificial Intelligence (AI) expands into the edge, it creates a heightened demand for high-performance, low-latency inference across distributed, resource-limited heterogeneous devices \cite{oquinn_environment-aware_2025}. Second, unlike in centralized settings, edge systems must make do with varying resource pools \cite{sedlak_equilibrium_2024}.
 
+Traditional distributed computing frameworks, such as MapReduce \cite{dean_mapreduce_2008},
+Apache Storm\cite{noauthor_apache_nodate} and Apache Flink \cite{carbone_apache_2015}, have significantly advanced the parallelization and
+distribution of data-intensive computations. Nevertheless, these frameworks were initially
+developed for environments with relatively abundant resources and predictable workloads,
+making their direct application to highly dynamic edge scenarios challenging. Conventional elasticity management practices, which often involve heuristic-based rules or reactive scaling methods, are insufficient to address the adaptation requirements of edge computing environments. 
 
+This relates to the third major challenge \textit{continuous adaptation}\cite{danilenka_adaptive_2025}. A popular alternative to Heuristic agents are Machine Learning (ML) based approaches to adapt the system. However, as Sedlak et al. observe in \cite{sedlak_active_2024}, these approaches fail to capture gradual changes in the environment, as long as the ML models are not retrained, leading to an inaccurate view of the system. This creates the need for an agent that continuously adapts to its environment \cite{sedlak_equilibrium_2024}.
 
+\section{Propsed Approach}
+To address these challenges, this thesis proposes a novel distributed parallel pipeline
+architecture for edge data stream processing, which is tightly coupled with a real-time elasticity
+mechanism governed by an active inference agent. In this architecture, data streams are
+partitioned and processed in parallel across multiple worker nodes. Each worker executes
+inference or transformation tasks, while a collector node aggregates the results. Crucially, a
+central agent continuously monitors SLOs and system state, and adjusts stream parameters to maximize Quality of Experience (QoE). To balance the resource- and QoE requirements, the system implements Service Level Objectives (SLOs), a fundamental concept used to meet the performance and quality targets of the system \cite{sedlak_towards_2025}, \cite{nastic_sloc_2020}.
+
+The distinguishing contribution of this work is the application of active inference as a generic,
+explainable control paradigm for adaptive elasticity. By framing SLO satisfaction and quality maximization as explicit preferences within a generative model, the agent is able to select actions that balance exploitation (maximizing stream quality) and exploration (reducing model uncertainty), in accordance with current observations and beliefs \cite{lanillos_active_2021}, \cite{danilenka_adaptive_2025}, \cite{casamayor_pujol_deepslos_2024}, \cite{sedlak_adaptive_2024}. This approach is generalizable to arbitrary data streams (including audio, video, sensor, or network
+data), and can support a range of SLO types and system constraints.
+
+\section{Research Question and Objectives}
+Given the outlined challenges and research gaps, the primary objective of this thesis is to
+investigate how Active Inference can be effectively applied to resource-constrained edge
+computing environments for the predictive control of elasticity and the dynamic enforcement of
+Service Level Objectives. Specifically, the thesis seeks to address the central research question:
+
+\textbf{"How can data streams be efficiently processed in resource-limited edge computing
+environments using Active Inference to dynamically control elasticity and maintain Quality of Experience?"}
+
+This question is further refined through targeted research objectives:
+\begin{itemize}
+  \item Design and implement a distributed, parallel pipeline for stream processing on edge
+devices
+  \item Introduce an elasticity mechanism, controlled by an active inference agent, that
+adjusts stream parameters dynamically.
+  \item Evaluate the effectiveness of this approach in upholding quality standards
+and resource constraints under realistic edge workloads
+\end{itemize}
