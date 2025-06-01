@@ -1,4 +1,24 @@
 \chapter{Introduction}
 \todo{Problem Statement}
-General parallel processing pipeline for edge computing cases, when the tasks are real time. For evaluation purposes, we used a video stream. For computation we used YOLOv11 inference.
-Goal: uphold a certain level of QoE while ensuring usable inference results.
+General parallel processing pipeline for edge computing cases, when the tasks are real time. For evaluation purposes, we used a video stream. For computation, we used YOLOv11 inference.
+Goal: uphold a certain level of QoE while ensuring usable inference results. \cite{lin_murmuration_2024}
+
+\section{Motivation}
+The rapid proliferation of Internet of Things (IoT) devices, mobile computing applications, and real-time sensor networks has led to an exponential increase in data generated at the edge of the network. Consequently, edge computing to emerge as a critical technology in contemporary distributed systems. The core promise of edge computing lies in its capacity to
+reduce latency, enhance privacy, save bandwidth and improve responsiveness by processing data closer to the sources of generation \cite{Edge intelligence: The confluence of edge computing and artificial intelligence}. Consequently, edge architectures must be increasingly adopted to meet the
+stringent latency and computational requirements of real-time, data-intensive applications \cite{sedlak_active_2024}. However, edge computing is fundamentally challenged by resource limitations, heterogeneity, and the unpredictability of local operating environments. This is further exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. As O’Quinn et al. \cite{oquinn_environment-aware_2025} observe, "IoT and edge-based inference systems require unique solu
+tions to overcome resource limitations and unpredictable environments." 
+
+Traditional approaches to resource management in distributed systems commonly rely on
+vertical and horizontal scaling techniques, which either add more resources or redistribute
+existing resources dynamically. While effective in cloud-based scenarios, these scaling
+techniques show substantial limitations within edge computing cases \cite{xu_coscal_2022}. Moreover, they often do not possess adequate predictive capabilities, making real-time
+adaptation difficult under rapidly changing workloads and operational conditions \cite{oquinn_environment-aware_2025}.
+
+In response to these limitations, advanced approaches that incorporate predictive and adaptive
+capabilities are necessary. Active Inference (AIF), a concept derived from neuroscience, as introduced by Karl Friston in \cite{friston_free-energy_2010}, has recently emerged as a methodology to address such challenges. AIF provides a unified mathematical framework enabling agents to
+continually anticipate and adapt to uncertainty through perception-action cycle \cite{friston_active_2016}\cite{lanillos_active_2021}. This thesis addresses the challenge of integrating AIF principles in a distributed system environment to adapt resource allocation and maintain QoS and (QoE) under strict constraints.
+
+
+
+
