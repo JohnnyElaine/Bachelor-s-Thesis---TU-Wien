@@ -3,7 +3,28 @@ This chapter introduces foundational concepts essential for understanding how Ac
 can be effectively leveraged to uphold Service Level Objectives (SLOs) in resource-constrained
 edge computing environments. The first section establishes the critical role of SLOs in edge computing scenarios. The subsequent section explores all of the key concepts regarding Active Inference and the Free Energy Principle. The final section discusses the application of Active Inference in distributed systems.
 
-\section{Service Level Objectives}
+\section{Edge Computing and Service Level Objectives}
+Edge computing refers to a distributed computing paradigm in which data processing occurs in
+close proximity to the data source. This architectural shift reduces the latency and bandwidth
+limitations inherent in centralized cloud computing \cite{deng_edge_2020}, while enabling real-time
+analytics for latency-sensitive tasks such as autonomous driving, smart surveillance, and
+industrial automation \cite{zhang_octopus_2023}.
+
+Edge computing environments are characterized by pronounced heterogeneity \cite{danilenka_adaptive_2025}: devices may
+range from microcontrollers and single-board computers to more capable edge servers, each
+with distinct resource constraints in terms of CPU, memory, energy, bandwidth and especially GPU, which has become a significant factor due to increasing inference demand. When tasked with continuous stream
+processing (e.g., real-time video analysis), such systems must dynamically manage
+computational demands without the luxury of cloud-level resource elasticity.
+
+To formalize quality expectations in such constrained environments, Service Level Objectives
+(SLOs) are used \cite{casamayor_pujol_deepslos_2024}. SLOs define quantifiable thresholds on performance metrics, such as
+response time, memory usage, or energy consumption targets \cite{danilenka_adaptive_2025}. SLOs serve as internal optimization goals \cite{danilenka_adaptive_2025} to guide system behavior under varying load conditions \cite{nastic_sloc_2020}.
+For example, in a video inference pipeline, one
+might define an SLO that memory usage must remain below 80\% of available capacity.
+
+Crucially, SLOs can serve a dual role: they can be targets for optimization and/or constraints that the
+system must not violate \cite{casamayor_pujol_deepslos_2024}, \cite{sedlak_diffusing_2024}. In edge scenarios, where stream quality competes directly with resource availability, such as video streaming tasks \cite{sedlak_adaptive_2024}, SLO-aware control is essential \cite{sedlak_slo-aware_2025}.
+
 \section{Active Inference}
 \section{Active Inference in Distributed Systems}
 
