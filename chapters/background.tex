@@ -10,8 +10,7 @@ limitations inherent in centralized cloud computing \cite{deng_edge_2020}, while
 analytics for latency-sensitive tasks such as autonomous driving, smart surveillance, and
 industrial automation \cite{zhang_octopus_2023}.
 
-Edge computing environments are characterized by pronounced heterogeneity \cite{danilenka_adaptive_2025}: devices may
-range from microcontrollers and single-board computers to more capable edge servers, each
+Edge computing environments are characterized by pronounced heterogeneity \cite{furst_elastic_2018} , i.e, resource-asymmetry, vendor specifications, and usage patterns \cite{danilenka_adaptive_2025}. Devices may range from embedded computing boards to more capable edge servers, each
 with distinct resource constraints in terms of CPU, memory, energy, bandwidth and especially GPU, which has become a significant factor due to increasing inference demand. When tasked with continuous stream
 processing (e.g., real-time video analysis), such systems must dynamically manage
 computational demands without the luxury of cloud-level resource elasticity.
@@ -25,6 +24,30 @@ might define an SLO that memory usage must remain below 80\% of available capaci
 Crucially, SLOs can serve a dual role: they can be targets for optimization and/or constraints that the
 system must not violate \cite{casamayor_pujol_deepslos_2024}, \cite{sedlak_diffusing_2024}. In edge scenarios, where stream quality competes directly with resource availability, such as video streaming tasks \cite{sedlak_adaptive_2024}, SLO-aware control is essential \cite{sedlak_slo-aware_2025}.
 
+\section{Elasticity in Edge Computing Systems}
+Elasticity refers to a system’s ability to automatically adapt to changing workloads and resource availability. Since edge devices typically operate under fixed compute budgets, scaling hardware resources is not an option. Thus, elasticity must be achieved through intelligent control of software parameters \cite{sedlak_towards_2025}.
+
+Sedlak et al. define elasticity in \cite{sedlak_towards_2025} along multiple axes:
+\begin{itemize}
+  \item \textbf{Quality Elasticity}, which adjusts application-level parameters such as resolution, FPS,
+or inference model complexity
+  \item \textbf{Resource Elasticity}, which modulates CPU, memory, or I/O usage
+  \item \textbf{Cost Elasticity}, which optimizes for energy efficiency or execution time.
+\end{itemize}
+
+Each elasticity action impacts both the system's SLO fulfillment and its Quality of Experience
+(QoE). For instance, reducing the inference model complexity alleviates computational load but may lead to less accurate results. The key challenge lies in selecting the most appropriate elasticity action under uncertainty, while maintaining SLO compliance and maximizing QoE.
+
+Traditional control mechanisms, such as threshold-based rules, static policies or Mache Learning approaches are not optimal to address this trade-off in dynamic environments \cite{sedlak_active_2024}. A model-based approach, capable of learning and adapting to evolving contexts, is therefore required \cite{sedlak_equilibrium_2024}, \cite{danilenka_adaptive_2025}.
+
 \section{Active Inference}
+\subsection{The Free Energy Principle}
+The Free Energy Principle (FEP), as defined in \cite{friston_free-energy_201}
+
+\subsection{Active Inference}
+t posits that intelligent agents maintain internal generative models of
+their environment and use them to predict sensory inputs, select actions, and update beliefs
+over time. 
+
 \section{Active Inference in Distributed Systems}
 
