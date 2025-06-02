@@ -29,10 +29,10 @@ Elasticity refers to a system’s ability to automatically adapt to changing wor
 
 Sedlak et al. define elasticity in \cite{sedlak_towards_2025} along multiple axes:
 \begin{itemize}
-  \item \textbf{Quality Elasticity}, which adjusts application-level parameters such as resolution, FPS,
+  \item \textbf{Quality Elasticity} — adjusts application-level parameters such as resolution, FPS,
 or inference model complexity
-  \item \textbf{Resource Elasticity}, which modulates CPU, memory, or I/O usage
-  \item \textbf{Cost Elasticity}, which optimizes for energy efficiency or execution time.
+  \item \textbf{Resource Elasticity} — modulates CPU, memory, or I/O usage
+  \item \textbf{Cost Elasticity} — optimizes for energy efficiency or execution time.
 \end{itemize}
 
 Each elasticity action impacts both the system's SLO fulfillment and its Quality of Experience
@@ -40,12 +40,41 @@ Each elasticity action impacts both the system's SLO fulfillment and its Quality
 
 Traditional control mechanisms, such as threshold-based rules, static policies or Mache Learning approaches are not optimal to address this trade-off in dynamic environments \cite{sedlak_active_2024}. A model-based approach, capable of learning and adapting to evolving contexts, is therefore required \cite{sedlak_equilibrium_2024}, \cite{danilenka_adaptive_2025}.
 
-\section{Active Inference}
+\section{Active Inference and the Free Energy Principle}
 \subsection{The Free Energy Principle}
-The Free Energy Principle (FEP), as defined in \cite{friston_free-energy_201}
+The Free Energy Principle (FEP), as defined in \cite{friston_free-energy_2010}, provides a unified
+theory of perception, action, and learning. It posits that any self-organizing system that
+maintains equilibrium with its environment over time must minimize the long-term divergence between its
+internal beliefs and external sensory states \cite{friston_active_2017}. This divergence, known as
+surprise, refers to the difference between what an agent predicts based on its internal model and what it observes in the environment \cite{sedlak_adaptive_2024}.
+
+Agents cannot minimize surprise directly, since the true generative process that produces sensory data
+is unknown. Thus, agents aim to minimize an upper bound known as (variational) Free Energy (FE). It captures the difference between the systems internal representation of the world and its observations, making it a computationally feasible approximation for surprise.
+
+Variational Free Energy (FE) can be expressed as the Kullback-Leibler (KL) divergence between approximate posterior probability (Q) of hidden states (x) and their exact posterior probability (P) \cite{sedlak_active_2024}, \cite{sedlak_adaptive_2024}, \cite{sajid_active_2021}. 
+\[FE = TODO Formula and variables for Free Energy\]
+
+ minimizing free energy minimizes KL divergence and brings the agent’s beliefs closer to the true posterior distribution \(TODO: Distribution Variables here\).
+
+ \subsection{Expected Free Energy}
+To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is done via Expected Free Energy (EFE). EFE)extends the concept of variational free energy into the future, by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. The agent uses the EFE to decide on actions. EFE is made up of two key components \cite{friston_active_2022} % Active Inference: The Free Energy Principle in Mind, Brain, and Behavior%
+\begin{enumerate}
+  \item Epistemic Value (Information Gain) — Drives exploration by favoring actions that are expected to yield informative outcomes, improving the agent’s generative model.
+  \item Pragmatic Value — Drives the agent to select actions that are likely to fulfill its explicit goals or preferences, i.e., it promotes exploitation.
+\end{enumerate}
+
+Together, these terms enable the agent to balance the classic exploration-exploitation tradeoff \cite{sedlak_adaptive_2024}. This dual drive allows AIF
+agents to maintain SLOs while learning optimal control strategies for software parameters. \cite{lapkovskis_benchmarking_2025}.
 
 \subsection{Active Inference}
-t posits that intelligent agents maintain internal generative models of
+Active inference (AIF) operationalizes the free energy principle in artificial agents, extending it to encompass both state estimation and action selection \cite{lanillos_active_2021}.
+
+\section{The Active Inference Cycle}
+
+
+
+
+posits that intelligent agents maintain internal generative models of
 their environment and use them to predict sensory inputs, select actions, and update beliefs
 over time. 
 
