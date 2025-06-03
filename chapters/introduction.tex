@@ -6,15 +6,15 @@ reduce latency, enhance privacy, save bandwidth, and improve responsiveness by p
 
 However, edge computing introduces its own set of challenges. Unlike the virtually
 elastic resources of centralized data centers, edge devices are highly heterogeneous \cite{furst_elastic_2018},
-resource-constrained in terms of compute, memory, and energy availability and operate in unpredictable environments \cite{sedlak_active_2024}, \cite{danilenka_adaptive_2025}. This complexity is exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. The ability to provide high-quality service under such conditions is critically dependent on the capacity to monitor, predict, and enforce Service Level Objectives (SLOs)—quantitative targets, such as latency, throughput, and resource utilization \cite{sedlak_diffusing_2024}, \cite{nastic_sloc_2020}. 
+resource-constrained in terms of compute, memory, and energy availability and operate in unpredictable environments \cite{sedlak_active_2024, danilenka_adaptive_2025}. This complexity is exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. The ability to provide high-quality service under such conditions is critically dependent on the capacity to monitor, predict, and enforce Service Level Objectives (SLOs)—quantitative targets, such as latency, throughput, and resource utilization \cite{sedlak_diffusing_2024, nastic_sloc_2020}. 
 
-Ensuring SLO compliance in these environments is an unsolved problem. The necessity of elasticity—that is, dynamically scaling application parameters or resources in response to workload fluctuations and SLO states—demands new control paradigms that are both data-driven and interpretable \cite{lapkovskis_benchmarking_2025}, \cite{dias_de_assuncao_distributed_2018}.
+Ensuring SLO compliance in these environments is an unsolved problem. The necessity of elasticity—that is, dynamically scaling application parameters or resources in response to workload fluctuations and SLO states—demands new control paradigms that are both data-driven and interpretable \cite{lapkovskis_benchmarking_2025, dias_de_assuncao_distributed_2018}.
 
 Traditional solutions, such as threshold-based scaling or Reinforcement Learning (RL), often fail to provide robust guarantees or require costly retraining under shifting environmental conditions \cite{xu_coscal_2022}. Moreover, they often do not possess adequate predictive capabilities, making real-time adaptation difficult under rapidly changing workloads and operational conditions \cite{oquinn_environment-aware_2025}.
 
 In response to these limitations, advanced approaches that incorporate predictive and adaptive
 capabilities are necessary. Active Inference (AIF), a concept derived from neuroscience, as introduced by Karl Friston in \cite{friston_free-energy_2010}, has recently emerged as a methodology to address such challenges. AIF provides a unified mathematical framework enabling agents to
-continually anticipate and adapt to uncertainty through perception-action cycle \cite{friston_active_2016}, \cite{lanillos_active_2021}. This thesis addresses the challenge of integrating AIF principles in a distributed system environment to adapt resource allocation and maintain QoS and QoE under strict constraints.
+continually anticipate and adapt to uncertainty through perception-action cycle \cite{friston_active_2016, lanillos_active_2021}. This thesis addresses the challenge of integrating AIF principles in a distributed system environment to adapt resource allocation and maintain QoS and QoE under strict constraints.
 
 \section{Challenges and Problem Definition}
 Designing adaptive edge systems for real-time data streams presents several key
@@ -22,7 +22,7 @@ challenges. First, edge environments are highly heterogeneous \cite{furst_elasti
 rapidly shifting workloads \cite{danilenka_adaptive_2025}. Especially as Artificial Intelligence (AI) expands into the edge, it creates a heightened demand for high-performance, low-latency inference across devices \cite{oquinn_environment-aware_2025}. Second, unlike in centralized settings, edge systems must make do with varying resource pools \cite{sedlak_equilibrium_2024}.
 
 Traditional distributed computing frameworks, such as MapReduce \cite{dean_mapreduce_2008},
-Apache Storm\cite{noauthor_apache_nodate} and Apache Flink \cite{noauthor_apache_nodate-1}, \cite{carbone_apache_2015}, have significantly advanced the parallelization and
+Apache Storm\cite{noauthor_apache_nodate} and Apache Flink \cite{noauthor_apache_nodate-1, carbone_apache_2015}, have significantly advanced the parallelization and
 distribution of data-intensive computations. Nevertheless, these frameworks were initially
 developed for environments with relatively abundant resources and predictable workloads,
 making their direct application to highly dynamic edge scenarios challenging. Conventional elasticity management practices, which often involve heuristic-based rules or reactive scaling methods, are insufficient to address the adaptation requirements of edge computing environments. Sedlak et al. mention in \cite{sedlak_diffusing_2024} the fact that there is still a significant lack of integrated frameworks that combine predictive modeling, real-time inference, dynamic elasticity, and strict SLO enforcement. As a result, there is a strong need for comprehensive methods that use advanced prediction to proactively manage resources and maintain performance in the constrained conditions of edge computing.
@@ -35,10 +35,10 @@ architecture for edge data stream processing, which is tightly coupled with a re
 mechanism governed by an active inference agent. In this architecture, data streams are
 partitioned and processed in parallel across multiple worker nodes. Each worker executes
 inference or transformation tasks, while a collector node aggregates the results. Crucially, a
-central agent continuously monitors SLOs and system state, and adjusts stream parameters to maximize Quality of Experience (QoE). To balance the resource- and QoE requirements, the system implements Service Level Objectives (SLOs), a fundamental concept used to meet the performance and quality targets of the system \cite{sedlak_towards_2025}, \cite{nastic_sloc_2020}.
+central agent continuously monitors SLOs and system state, and adjusts stream parameters to maximize Quality of Experience (QoE). To balance the resource- and QoE requirements, the system implements Service Level Objectives (SLOs), a fundamental concept used to meet the performance and quality targets of the system \cite{sedlak_towards_2025, nastic_sloc_2020}.
 
 The distinguishing contribution of this work is the application of active inference as a generic,
-explainable control paradigm for adaptive elasticity. By framing SLO satisfaction and quality maximization as explicit preferences within a generative model, the agent is able to select actions that balance exploitation (maximizing stream quality) and exploration (reducing model uncertainty), in accordance with current observations and beliefs \cite{lanillos_active_2021}, \cite{danilenka_adaptive_2025}, \cite{casamayor_pujol_deepslos_2024}, \cite{sedlak_adaptive_2024}. This approach is generalizable to arbitrary data streams (including audio, video, sensor, or network
+explainable control paradigm for adaptive elasticity. By framing SLO satisfaction and quality maximization as explicit preferences within a generative model, the agent is able to select actions that balance exploitation (maximizing stream quality) and exploration (reducing model uncertainty), in accordance with current observations and beliefs \cite{casamayor_pujol_deepslos_2024, sedlak_adaptive_2024, danilenka_adaptive_2025, lanillos_active_2021}. This approach is generalizable to arbitrary data streams (including audio, video, sensor, or network
 data), and can support a range of SLO types and system constraints.
 
 \section{Research Question and Objectives}
