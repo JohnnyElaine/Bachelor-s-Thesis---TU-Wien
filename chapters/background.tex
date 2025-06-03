@@ -1,7 +1,7 @@
 \chapter{Background}
-This chapter introduces foundational concepts essential for understanding how Active Inference
+The three core mechanisms used for dynamically adjusting stream processing in this thesis are Service Level Objectives (SLOs), Elasticity and Active Inference (AIF). This chapter introduces foundational concepts, essential for understanding how Active Inference
 can be effectively leveraged to uphold Service Level Objectives (SLOs) in resource-constrained
-edge computing environments. The first section establishes the critical role of SLOs in edge computing scenarios. The subsequent section explores all of the key concepts regarding Active Inference and the Free Energy Principle. The final section discusses the application of Active Inference in distributed systems.
+edge computing environments. The first section establishes the critical role of SLOs in edge computing scenarios. The subsequent section defines the role of Elasticity in Edge Computing Systems. The penultimate section explores all of the key concepts regarding Active Inference and the Free Energy Principle. The final section discusses the principles for using AIF in distributed systems.
 
 \section{Edge Computing and Service Level Objectives}
 Edge computing refers to a distributed computing paradigm in which data processing occurs in
@@ -48,8 +48,11 @@ maintains equilibrium with its environment over time must minimize the long-term
 internal beliefs and external sensory states \cite{friston_active_2017}. This divergence, known as
 surprise, refers to the difference between what an agent predicts based on its internal model and what it observes in the environment \cite{sedlak_adaptive_2024}.
 
-Agents cannot minimize surprise directly, since the true generative process that produces sensory data
-is unknown. Thus, agents aim to minimize an upper bound known as (variational) Free Energy (FE). It captures the difference between the systems internal representation of the world and its observations, making it a computationally feasible approximation for surprise.
+Agents cannot minimize surprise directly, since the actual way that the world produces sensory data
+is unknown. This causal process that describes how external states of the world generate observable
+outcomes is known as the generative process \cite{friston_free-energy_2010}. As an agent is unable to observe the "real world", it instead creates an internal representation of the generative process, known as the generative model. The closer the generative model is to the underlying generative process, the higher the precision of the agent's predictions is \cite{sedlak_active_2024}.
+
+As the generative model is typically an approximation of the real world and thus cannot minimize surprise directly, agents aim to minimize an upper bound known as (variational) Free Energy (FE) instead. It captures the difference between the systems internal representation of the world and its observations, making it a computationally feasible approximation for surprise.
 
 Variational Free Energy (FE) can be expressed as the Kullback-Leibler (KL) divergence between approximate posterior probability (Q) of hidden states (x) and their exact posterior probability (P) \cite{sedlak_active_2024}, \cite{sedlak_adaptive_2024}, \cite{sajid_active_2021}. 
 \[FE = TODO Formula and variables for Free Energy\]
@@ -59,17 +62,20 @@ Variational Free Energy (FE) can be expressed as the Kullback-Leibler (KL) diver
  \subsection{Expected Free Energy}
 To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is done via Expected Free Energy (EFE). EFE)extends the concept of variational free energy into the future, by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. The agent uses the EFE to decide on actions. EFE is made up of two key components \cite{friston_active_2022} % Active Inference: The Free Energy Principle in Mind, Brain, and Behavior%
 \begin{enumerate}
-  \item Epistemic Value (Information Gain) — Drives exploration by favoring actions that are expected to yield informative outcomes, improving the agent’s generative model.
-  \item Pragmatic Value — Drives the agent to select actions that are likely to fulfill its explicit goals or preferences, i.e., it promotes exploitation.
+  \item \textbf{Epistemic Value (Information Gain)} — Drives exploration by favoring actions that are expected to yield informative outcomes, improving the agent’s generative model.
+  \item \textbf{Pragmatic Value} — Drives the agent to select actions that are likely to fulfill its explicit goals or preferences, i.e., it promotes exploitation.
 \end{enumerate}
 
 Together, these terms enable the agent to balance the classic exploration-exploitation tradeoff \cite{sedlak_adaptive_2024}. This dual drive allows AIF
 agents to maintain SLOs while learning optimal control strategies for software parameters. \cite{lapkovskis_benchmarking_2025}.
 
 \subsection{Active Inference}
-Active inference (AIF) operationalizes the free energy principle in artificial agents, extending it to encompass both state estimation and action selection \cite{lanillos_active_2021}.
+Active inference (AIF) operationalizes the Free Energy Principle in artificial agents, extending it to encompass both state estimation and action selection \cite{lanillos_active_2021}, \cite{sedlak_equilibrium_2024}. To implement the concepts of the Free Energy Principle, an agent maintains a generative model, an internal representation of the world that the agent operates in. 
 
-\section{The Active Inference Cycle}
+\todo{Add figure depicting Active Infernece}
+
+
+\subsection{The Active Inference Cycle}
 
 
 
