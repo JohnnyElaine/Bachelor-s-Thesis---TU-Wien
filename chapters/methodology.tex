@@ -1,3 +1,44 @@
 \chapter{Methodology}
-\todo{Enter your text here.}
-In this chapter, the methods used are explained in detail. Firstly, 
+This chapter presents a general framework for upholding Service Level Objectives (SLOs) in distributed stream processing pipelines deployed in edge computing environments. The methodology addresses the central research question \ref{sec:research-question} of this thesis. To provide an answer, this thesis proposes a unified architecture that combines parallel stream processing with Active Inference (AIF)–based adaptive control. This architecture is designed to elastically adjust system behavior to uphold SLOs in the face of limited computational resources and dynamic workloads. It is designed to be generic, extensible, and applicable across a wide variety of real-time data stream applications at the edge.
+
+\section{System Architecture}
+\subsection{Pipeline Design and Parallel Processing}
+At the core of our framework lies a modular streaming pipeline composed of three functionally distinct entities: a\textbf{ Producer}, a set of parallel \textbf{Workers}, and a \textbf{
+Collector}. The Producer generates a continuous stream of data segments (or ``tasks``) and enqueues them for processing. The Workers operate in parallel and independently process each task according to the current parameter configurations. Once processed, results are transmitted asynchronously to the Collector, which reassembles and delivers the final output.
+
+This modular separation enables horizontal scalability and encapsulation of concerns: the Producer governs stream rate and complexity, the Workers handle computation, and the Collector ensures ordering and completion. This design is inspired by the dataflow paradigm typical in modern stream processing systems, such as Apache Storm \cite{carbone_apache_2015, noauthor_apache_nodate}. 
+
+Figure \ref{fig:parallel-distributed-pipeline} provides a high-level overview of the design.
+
+\subsection{Task Distribution and Load Balancing}
+Tasks are distributed in a decentralized fashion: each worker node actively requests tasks when ready to compute, forming a pull-based load balancing model. This mechanism enables the system to scale to a large number of workers without requiring global synchronization. This load-balancing pattern emerges naturally as faster or less burdened nodes consume more tasks \cite{estrada_comparing_2015}.
+
+While such an architecture increases communication overhead, as the worker node has to go out of its way to request data, it also enables efficient utilization of heterogeneous compute resources by aligning task assignment with runtime capacity.
+
+\subsection{Asynchronous Communication Mode}
+All communication between components is asynchronous. Producers dispatch tasks without blocking \cite{lauener_how_2018}; workers process and return results independently; and collectors operate on incoming data streams without waiting on global completion barriers.
+
+This asynchronous design supports robustness under dynamic conditions, such as fluctuating task loads or varying network bandwidth \cite{nguyen_octopinf_2025}. This non-blocking operation is critical for real-time scenarios in which latency constraints must be maintained regardless of individual node performance fluctuations.
+
+\todo{Bild von der Pipeline einfügen}
+
+\section{Service Level Objectives for Resource Management and Quality Assurance}
+SLOs are defined as a value between 0 and infinity.Lower values inidicate an OK SLO state, while higher values indicate a worse state.Values over 1 indicate that a SLO is unfillfilled.
+
+\section{Active Inference-Based Elasticity Control}
+\subsection{}{Generative Model Speicification}
+See vague-thesis.pdf
+
+
+\begin{itemize}
+  \item \textbf{Observation model \(P(o \mid s)\):} Obeservations of Stream Paramters and SLO values.
+  \item \textbf{Transition model \(P(s_{t+1} \mid s_t,a_t)\):} Actions taken by Agent to change stream quality paramters.
+  \item \textbf{Prior preferences over observations \(P(o)\):} Agent prefers high stream quality paramters, while strongly averting unfilled SLOs.
+  \item \textbf{Prior beliefs about hidden states \(P(s_0)\):} The initial state of SLOs and stream quality parameters, before any data has been processed.
+  \item \textbf{Prior beliefs about policies: \(P(\pi)\):} 
+\end{itemize}
+
+\subsection{Active Inference Loop Execution}
+Loop is executed every 1s.
+
+\section{System Adaptation through Policy Belief Updatin}

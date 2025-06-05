@@ -51,7 +51,7 @@ surprise, refers to the difference between what an agent predicts based on its i
 \subsubsection{Generative Process and Model}
 Agents cannot minimize surprise directly, since the actual way that the world produces sensory data
 is unknown. This process that describes the true causes for how the world generates observable
-outcomes is known as the \textit{generative process} \cite{friston_free-energy_2010, smith_step-by-step_2022}. As an agent is unable to observe the "real world", it instead creates an internal representation of the \textit{generative process}, known as the \textit{generative model}. The \textit{generative model} serves as an approximation and is used by the agent to predict and adjust its environment according to its preferences.
+outcomes is known as the \textit{generative process} \cite{friston_free-energy_2010, smith_step-by-step_2022}. As an agent is unable to observe the ``real world``, it instead creates an internal representation of the \textit{generative process}, known as the \textit{generative model}. The \textit{generative model} serves as an approximation and is used by the agent to predict and adjust its environment according to its preferences.
 
 \begin{figure}[htbp]
     \centering
@@ -60,7 +60,7 @@ outcomes is known as the \textit{generative process} \cite{friston_free-energy_2
     \label{fig:generative-process-generative-model}
 \end{figure}
 
-When the \textit{generative process} and the \textit{generative model} differ, the agent will be "surprised", causing it to adjust its model closer towards the process \cite{bruineberg_free-energy_2018}. The closer the generative model is to the underlying generative process, the higher the precision of the agent's predictions is \cite{sedlak_active_2024}.
+When the \textit{generative process} and the \textit{generative model} differ, the agent will be ``surprised``, causing it to adjust its model closer towards the process \cite{bruineberg_free-energy_2018}. The closer the generative model is to the underlying generative process, the higher the precision of the agent's predictions is \cite{sedlak_active_2024}.
 
 \subsubsection{Free Energy minimization}
 To align the \textit{generative models} with the \textit{generative process}, the agent aims to reduce surprise to the maximum extent. A system cannot directly evaluate surprise, because this would require knowing all hidden states of the world \cite{friston_free-energy_2009}, i.e. the \textit{generative process}. Instead, an agent aims to 
@@ -102,7 +102,7 @@ observation.
     \item \textbf{Action:} Choosing and executing actions that minimize EFE, based on the agent’s posterior over policies.
 \end{enumerate}
 
-This loop is executed at regular intervals during an agent's lifetime. As Bruineberg et al. summerize in \cite{bruineberg_free-energy_2018}: "This gives rise to a continuous feedback loop, in which what the agent does changes the environment, which changes what the agent perceives, which changes the expectations of the agent, which in turn changes what the agent does (to change the environment)."
+This loop is executed at regular intervals during an agent's lifetime. As Bruineberg et al. summerize in \cite{bruineberg_free-energy_2018}: ``This gives rise to a continuous feedback loop, in which what the agent does changes the environment, which changes what the agent perceives, which changes the expectations of the agent, which in turn changes what the agent does (to change the environment).``
 
 \begin{figure}[htbp]
     \centering
