@@ -15,7 +15,7 @@ Tasks are distributed in a decentralized fashion: each worker node actively requ
 
 While such an architecture increases communication overhead, as the worker node has to go out of its way to request data, it also enables efficient utilization of heterogeneous compute resources by aligning task assignment with runtime capacity.
 
-\subsection{Asynchronous Communication Mode}
+\subsection{Asynchronous Communication Model}
 All communication between components is asynchronous. Producers dispatch tasks without blocking \cite{lauener_how_2018}; workers process and return results independently; and collectors operate on incoming data streams without waiting on global completion barriers.
 
 This asynchronous design supports robustness under dynamic conditions, such as fluctuating task loads or varying network bandwidth \cite{nguyen_octopinf_2025}. This non-blocking operation is critical for real-time scenarios in which latency constraints must be maintained regardless of individual node performance fluctuations.
@@ -51,7 +51,7 @@ indicating a minor SLO violation.
 This formulation enables a uniform treatment of heterogeneous resource constraints, allowing the system to monitor, compare, and respond to SLO fulfillment in a principled and quantitative manner.
 
 \subsection{Multi-Dimensional Elasticity}
-Each stream processing task can be executed under different configurations, with associated computational demands. A configuration defines a set of \textit{stream quality parameters}, such as inference quality, task frequency and task size. All of these parameters directly impact QoE. The system supports multi-dimensional elasticity, meaning that these parameters can be individually tuned during runtime.
+Each stream processing task can be executed under different configurations, with associated computational demands. A configuration defines a set of \textit{stream quality parameters}, such as inference quality, task frequency and task size. All of these parameters directly impact QoE and computational demands. The system supports multi-dimensional elasticity, meaning that these parameters can be individually tuned during runtime.
 
 The Producer operates as the central controller of stream parameterization. The changing of stream parameter can be separated into two types:
 
@@ -59,24 +59,14 @@ The Producer operates as the central controller of stream parameterization. The 
     \item \textbf{Task generation:} Stream parameters that directly affect the generation of tasks are changed directly at the producer level. The configuration then affects all newly generated tasks.
     \item \textbf{Task processing:} Stream parameters that affect large changes on the worker, such as switching inference quality, require coordination between producer and worker. When the producer dictates a change, it enqueues a control task, detailing the nature of the change, in the backlog of each worker. The next time a worker requests a task from the producer, it receives the control tasks and makes the described changes, before continuing with normal stream processing. This ensures synchronized configuration among workers.
 \end{itemize}
-
-\subsection{Continous Monitoring}
-It continuously monitors the state of the stream quality parameters and the SLOs. 
+\todo{Bild welches YOLO model change zeigt + Backlog}
 
 
-
-
-The elasticity mechanism enables the adaptive regulation of stream processing configurations in response to the system’s current load and the fulfillment status of predefined SLOs. 
-
-
-
-The relationship between these parameters and SLO fulfillment is non-linear. Therefore, the system must learn which configurations fulfill SLOs under which conditions, and which trade-offs are most efficient \cite{sedlak_towards_2025}.
 
 \section{Active Inference-Based Elasticity Control}
-\subsection{Generative Model Speicification}
-See vague-thesis.pdf
-
-SLOs are encoded as prior preferences. Stream quality parameters are encoded as prior preferences.
+The system exposes control of the \textit{stream quality parameters} to the AIF agent.
+\subsection{Generative Model Construction}
+Central to a capable AIF agent is the construction of the \textit{generative model}. It represents the causal relationships between system configuration parameters and observable SLO metrics. It captures both direct (i.e., quality parameters) and indirect dependencies (i.e., SLO) affecting agent behavior. This model includes:
 \begin{itemize}
   \item \textbf{Observation model \(P(o \mid s)\):} Obeservations of Stream Paramters and SLO values.
   \item \textbf{Transition model \(P(s_{t+1} \mid s_t,a_t)\):} Actions taken by Agent to change stream quality paramters.
@@ -85,7 +75,45 @@ SLOs are encoded as prior preferences. Stream quality parameters are encoded as 
   \item \textbf{Prior beliefs about policies: \(P(\pi)\):} 
 \end{itemize}
 
-\subsection{Active Inference Loop Execution}
-Loop is executed every 1s.
+\subsubsection{Prioritization Strategy}
+Crucially, the SLOs and \textit{stream quality parameters} are encoded as prior preferences with different absolute values. The preference to fulfill an SLO must be stronger than the preference to increase the quality of the stream (i.e., increase computational demand). This results in a lexicographic prioritization, where the primary objective is to maintain SLOs and the secondary objective of maximizing \textit{stream quality parameters}. This prioritization reflects the insight that QoE directly correlates with increased computational cost. Therefore, aggressive maximization of \textit{stream quality parameters} without constraint awareness would lead to SLO violations and system degradation.
 
-\section{System Adaptation through Policy Belief Updatin}
+The relationship between configuration and SLO fulfillment is non-linear. Therefore, the system must learn which configurations fulfill SLOs under which conditions, and which trade-offs are most efficient \cite{sedlak_towards_2025}.
+
+\subsection{Continous Observation and Configuration Adjustment}
+The AIF loop~\ref{sec:active-inference-loop} is executed periodically during the producer's runtime to evaluate and adapt the system's configuration. Finding an appropriate interval between evaluations is critical, as it determines how frequently the agent can revise and apply its control policy. Short intervals (e.g., 50\,ms) allow rapid responsiveness but risk instability. Actions may be issued faster than their causal effects can propagate through the system, leading to overcompensation or oscillatory behavior. This is especially problematic in stream processing pipelines where SLO-relevant variables such as memory usage evolve with delay. Conversely, overly long intervals (e.g., 20\,s) hinder the system’s ability to respond to rapid environmental changes, potentially causing SLO violations due to latency in corrective actions. 
+
+
+\subsubsection{Active Inference Loop}
+Each iteration of the loop involves a three-step procedure: observation, state and policy inference, and action sampling.
+
+\todo{refactor this using pymdp paper}
+\begin{enumerate}
+    \item \textbf{Observation (Perception):} The Agent receives updated observations of the current stream quality parameters and normalized SLO values. These observations form the input to the generative model and encode the current operational state of the distributed system.
+    \item \textbf{State and Policy inference (Belief Updating):} The agent uses the observations to infer hidden states that represent the compute budget. Inference is performed using the generative model, which captures causal dependencies between actions, configurations, and SLO outcomes. 
+    
+    Each policy proposes a sequence of future actions (e.g., lowering frame rate, switching inference models) over a short receding horizon defined by \(\pi\). These are scored against the agent’s preference model, which penalizes predicted SLO violations and rewards higher quality configurations—subject to constraints. Policies are ranked by their expected utility, defined via expected outcomes under the current posterior. Policies that minimize anticipated SLO violations while improving QoE are preferred.
+
+    Policies are ranked by their expected utility, defined via expected outcomes under the current posterior. Policies that minimize anticipated SLO violations while improving QoE are preferred.
+    
+    \item \textbf{Choosing Actions:} The highest-ranked policy is selected, and its first action is executed. This action corresponds to a reconfiguration command issued to the Producer. Depending on the type of change, the action either alters the global task generation template or injects a control message into the worker backlog (see Section~\ref{sec:stream-param-coordination}).
+
+The updated configuration becomes active immediately, and the system continues streaming.
+\end{enumerate}
+
+
+
+
+\subsection{Homeostasis}
+The agent's long-term objective is the persistent minimization of \textit{surprise} \cite{sedlak_adaptive_2024}, achieving homeostasis. This is done by finding a configuration that maximizes QoE, while upholding all SLOs.
+
+\subsection{Continous Monitoring}
+
+TODO: Implement these factors in "Active Inference-Based Elasticity Control"
+It continuously monitors the state of the stream quality parameters and the SLOs. 
+
+The elasticity mechanism enables the adaptive regulation of stream processing configurations in response to the system’s current load and the fulfillment status of predefined SLOs. 
+
+
+
+\section{System Adaptation through Policy Belief Updating}
