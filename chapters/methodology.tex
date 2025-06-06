@@ -57,7 +57,7 @@ The Producer operates as the central controller of stream parameterization. The 
 
 \begin{itemize}
     \item \textbf{Task generation:} Stream parameters that directly affect the generation of tasks are changed directly at the producer level. The configuration then affects all newly generated tasks.
-    \item \textbf{Task processing:} Stream parameters that affect large changes on the worker, such as switching inference quality, require coordination between producer and worker. When the producer dictates a change, it enqueues a control task, detailing the nature of the change, in the backlog of each worker. The next time a worker requests a task from the producer, it receives the control tasks and makes the described changes, before continuing with normal stream processing. This ensures synchronized configuration among workers.
+    \item \textbf{Task processing:} Stream parameters that affect large changes on the worker, such as switching inference quality, require coordination between producer and worker. When the producer dictates a change, it enqueues a control task, detailing the nature of the change, in the \textbf{backlog}\label{def:backlog} of each worker. The next time a worker requests a task from the producer, it receives the control tasks and makes the described changes, before continuing with normal stream processing. This ensures synchronized configuration among workers.
 \end{itemize}
 \todo{Bild welches YOLO model change zeigt + Backlog}
 
@@ -83,37 +83,30 @@ The relationship between configuration and SLO fulfillment is non-linear. Theref
 \subsection{Continous Observation and Configuration Adjustment}
 The AIF loop~\ref{sec:active-inference-loop} is executed periodically during the producer's runtime to evaluate and adapt the system's configuration. Finding an appropriate interval between evaluations is critical, as it determines how frequently the agent can revise and apply its control policy. Short intervals (e.g., 50\,ms) allow rapid responsiveness but risk instability. Actions may be issued faster than their causal effects can propagate through the system, leading to overcompensation or oscillatory behavior. This is especially problematic in stream processing pipelines where SLO-relevant variables such as memory usage evolve with delay. Conversely, overly long intervals (e.g., 20\,s) hinder the system’s ability to respond to rapid environmental changes, potentially causing SLO violations due to latency in corrective actions. 
 
-
 \subsubsection{Active Inference Loop}
 Each iteration of the loop involves a three-step procedure: observation, state and policy inference, and action sampling.
 
-\todo{refactor this using pymdp paper}
+This sub-section describes the cycle based on the \texttt{pymdp} \cite{heins_pymdp_2022} library, later utilized in the implementaion~\ref{sec:implementation}. This choice does not constrain the generality of the proposed methodology. The loop structure, model components, and control logic are independent of any specific framework and can be implemented using alternative tools or custom inference routines. However, \texttt{pymdp} offers a modular and transparent interface for constructing Active Inference agents in discrete state spaces, well-suited to the modeling assumptions underlying this work. Its use in this thesis serves both as a practical vehicle for experimentation and as a clear reference implementation of the conceptual model described. 
+
 \begin{enumerate}
-    \item \textbf{Observation (Perception):} The Agent receives updated observations of the current stream quality parameters and normalized SLO values. These observations form the input to the generative model and encode the current operational state of the distributed system.
-    \item \textbf{State and Policy inference (Belief Updating):} The agent uses the observations to infer hidden states that represent the compute budget. Inference is performed using the generative model, which captures causal dependencies between actions, configurations, and SLO outcomes. 
-    
-    Each policy proposes a sequence of future actions (e.g., lowering frame rate, switching inference models) over a short receding horizon defined by \(\pi\). These are scored against the agent’s preference model, which penalizes predicted SLO violations and rewards higher quality configurations—subject to constraints. Policies are ranked by their expected utility, defined via expected outcomes under the current posterior. Policies that minimize anticipated SLO violations while improving QoE are preferred.
+    \item \textbf{Observation Sampling (Peception):} The agent receives updated observations from the environment via the Producer. These include current values for the stream quality parameters and the normalized SLO values. The observationsa are then encoded in \texttt{o\_t}.
 
-    Policies are ranked by their expected utility, defined via expected outcomes under the current posterior. Policies that minimize anticipated SLO violations while improving QoE are preferred.
-    
-    \item \textbf{Choosing Actions:} The highest-ranked policy is selected, and its first action is executed. This action corresponds to a reconfiguration command issued to the Producer. Depending on the type of change, the action either alters the global task generation template or injects a control message into the worker backlog (see Section~\ref{sec:stream-param-coordination}).
+    \item \textbf{Belief Updating over States and Policies:} The agent updates its beliefs about hidden states $s_t$ using the latest observation $o_t$, applying variational Bayesian inference to approximate the posterior $Q(s_t)$. This is handled via:
+    \begin{quote}
+        \texttt{agent.infer\_states([o\_t])}
+    \end{quote}
+    Subsequently, the agent infers a posterior distribution over policies $\pi$, each representing a sequence of actions (e.g., changing inference quality) over a receding horizon. Policies are evaluated by their expected free energy $\mathbb{G}(\pi)$, which integrates both \emph{epistemic value} (information gain) and \emph{instrumental value} (goal fulfillment). Policies minimizing expected free energy are preferred. This step is implemented via:
+    \begin{quote}
+        \texttt{agent.infer\_policies()}
+    \end{quote}
+     Policies that minimize anticipated SLO violations while improving QoE are preferred.
 
-The updated configuration becomes active immediately, and the system continues streaming.
+    \item \textbf{Action Selection:} The agent samples the most promising action from the posterior over policies and executes the first action in the sequence. This corresponds to reconfiguring the stream pipeline by adjusting stream parameters. Execution is performed via:
+    \begin{quote}
+        \texttt{action = agent.sample\_action()}
+    \end{quote}
+    The action is then translated into a concrete command that is either applied to the task generation template or inserted as a control task into the worker backlog (see Section~\ref{def:backlog}).
 \end{enumerate}
 
-
-
-
-\subsection{Homeostasis}
+\subsubsection{Homeostasis}
 The agent's long-term objective is the persistent minimization of \textit{surprise} \cite{sedlak_adaptive_2024}, achieving homeostasis. This is done by finding a configuration that maximizes QoE, while upholding all SLOs.
-
-\subsection{Continous Monitoring}
-
-TODO: Implement these factors in "Active Inference-Based Elasticity Control"
-It continuously monitors the state of the stream quality parameters and the SLOs. 
-
-The elasticity mechanism enables the adaptive regulation of stream processing configurations in response to the system’s current load and the fulfillment status of predefined SLOs. 
-
-
-
-\section{System Adaptation through Policy Belief Updating}
