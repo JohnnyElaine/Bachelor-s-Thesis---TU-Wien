@@ -1,0 +1,15 @@
+\chapter{Discussion}
+\section{AIF on Worker, worker sends preferences to Producer}
+AIF auch auf dem Worker. Worker misst die Qualität seines outputs(frames). 
+Der Worker teilt seine preference für inference quality dem Producer mit. 
+Der Producer übernimmt die joint preferences von den workerm
+
+Welches problem Löst das? Beispeil:
+Worker läuft mit inference quality  5/10. Er hätte die ressourcen seine inference quality auf 6/10 zu erhöhen.
+Jedoch weis er durch kombination von momentanen messergebnissen und seinen vorherigen states (encoded im generative model), dass eine erhöhun gauf 6/10 infernce quality die qualität des outputs nicht verbessert und nur ressourcen verschwenden würde.
+
+\section{very slow worker nodes}
+The load balancing design pattern maximizes the resource usage in heterogeneous workers. But it doesnt resolve the issue of extremely slow worker nodes. When a worker is below a certain threshold for processing a single \textbf{task}, then this tasks may not be used in the resulting output. Meaning that the work done by the node is essential useless.
+
+For example:
+If we have video-stream running at 30fps, this means that there has to be a new frame every \(33\text{ms}\). If the delay between the source-stream and the output-stream is \(1\text{s}\), then a worker has at most \(1\text{s}\) for processing a single task. If the worker is unable to processes the requested task within this time frame, then the result-task will discarded by the collector as it is ''behind'' the current stream, i.e., the most recent task that has reached output has a higher id then the task that was submitted by the slow worker node. This results in lost information, e.g, dropped frames for a video stream and the computational power of the slow worker node is wasted.

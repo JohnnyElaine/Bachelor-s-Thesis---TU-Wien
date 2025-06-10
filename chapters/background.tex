@@ -48,6 +48,8 @@ maintains equilibrium with its environment over time must minimize the long-term
 internal beliefs and external sensory states \cite{friston_active_2017}. This divergence, known as
 surprise, refers to the difference between what an agent predicts based on its internal model and what it observes in the environment \cite{sedlak_adaptive_2024}.
 
+\todo{Add mathematical variable for surprse}
+
 \subsubsection{Generative Process and Model}
 Agents cannot minimize surprise directly, since the actual way that the world produces sensory data
 is unknown. This process that describes the true causes for how the world generates observable
@@ -72,6 +74,28 @@ FE can be expressed as the Kullback-Leibler (KL) divergence between approximate 
 
  minimizing free energy minimizes KL divergence and brings the agent’s beliefs closer to the true posterior distribution \(TODO: Distribution Variables here\).
 
+\[
+\mathcal{S}(o) = -\ln{P(o)} 
+\]
+\[
+\mathcal{O}(o) = -\ln{P(o)} 
+\]
+
+\begin{equation}
+\mathcal{F} = \mathrm{KL}[Q(s) \parallel P(s|o)] - \ln P(o)
+\end{equation}
+
+\todo{check who boris cited in \cite{sedlak_adaptive_2024}}
+
+\textbf{Variable descriptions:}
+\begin{itemize}
+  \item $Q(s)$: Approximate posterior (belief) over hidden states $s$, inferred by the agent.
+  \item $P(o, s)$: Joint probability of observations $o$ and hidden states $s$ under the generative model.
+  \item $P(o|s)$: Likelihood of observing $o$ given $s$ (encoded by matrix $\mathbf{A}$).
+  \item $P(s)$: Prior over hidden states (e.g., initial state prior $\mathbf{D}$ or transition prior via $\mathbf{B}$).
+  \item $\mathrm{KL}[Q(s) \parallel p(s|o)]$: Kullback--Leibler divergence between approximate posterior and true posterior.
+\end{itemize}
+
  \subsubsection{Expected Free Energy}
 To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is done via Expected Free Energy (EFE). EFE extends the concept of variational Free Energy into the future, by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. The agent uses the EFE to decide on actions. EFE is made up of two key components \cite{friston_active_2022} % Active Inference: The Free Energy Principle in Mind, Brain, and Behavior%
 \begin{enumerate}
@@ -81,6 +105,30 @@ To act in the world, agents must not only evaluate current states but also antic
 
 Together, these terms enable the agent to balance the classic exploration-exploitation tradeoff \cite{sedlak_adaptive_2024}. This dual drive allows AIF
 agents to maintain SLOs while learning optimal control strategies for software parameters. \cite{lapkovskis_benchmarking_2025}.
+
+\begin{equation}
+\mathbb{G}(\pi) = \underbrace{-\mathbb{E}_{q(o, s \mid \pi)} \left[ \ln q(s \mid \pi) - \ln q(s \mid o, \pi) \right]}_{\text{information gain}} - \underbrace{\mathbb{E}_{q(o \mid \pi)} \left[ \ln p(o) \right]}_{\text{pragmatic value}}
+\end{equation}
+
+\todo{Use formula from \cite{danilenka_adaptive_2025} with DKL}
+
+\todo{check who they cited in \cite{danilenka_adaptive_2025}}
+
+
+\textbf{Variable explanations:}
+\begin{itemize}
+  \item $s$: Hidden States
+  \item $o$: Observations
+  \item $\pi$: A policy, i.e., a sequence of actions the agent may take.
+  \item $q(s \mid \pi)$: Predicted posterior distribution over hidden states $s$ under policy $\pi$.
+  \item $q(s \mid o, \pi)$: Updated posterior over states after observing $o$, given policy $\pi$.
+  \item $q(o \mid \pi)$: Predictive distribution over future observations under policy $\pi$.
+  \item $p(o)$: Preferred (prior) probability of observations, encoded as agent’s prior preferences.
+\end{itemize}
+
+
+
+
 
 \subsection{Active Inference}
 Active inference (AIF) operationalizes the Free Energy Principle in artificial agents, extending it to encompass both state estimation and action selection \cite{sedlak_equilibrium_2024, lanillos_active_2021}. To implement the concepts of the Free Energy Principle, an agent maintains a \textit{generative model}, which includes the following categorical distributions \cite{heins_pymdp_2022}:
