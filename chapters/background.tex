@@ -104,7 +104,7 @@ To act in the world, agents must not only evaluate current states but also antic
 Together, these terms enable the agent to balance the classic exploration-exploitation tradeoff \cite{sedlak_adaptive_2024}. This dual drive allows AIF
 agents to maintain SLOs while learning optimal control strategies for software parameters. \cite{lapkovskis_benchmarking_2025}.
 
-Mathematically the EFE can be expressed as \cite{parr_active_2022}:
+Mathematically, the EFE can be expressed as \cite{parr_active_2022}:
 
 \[
 EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} \mathrm{D_{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }}_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln P(o \mid C) \right]}_{\text{pragmatic value}}
