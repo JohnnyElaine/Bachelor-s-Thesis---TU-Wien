@@ -68,27 +68,22 @@ When the \textit{generative process} and the \textit{generative model} differ, t
 To align the \textit{generative models} with the \textit{generative process}, the agent aims to reduce surprise to the maximum extent. A system cannot directly evaluate surprise, because this would require knowing all hidden states of the world \cite{friston_free-energy_2009}, i.e. the \textit{generative process}. Instead, an agent aims to 
 minimize an upper bound \cite{smith_step-by-step_2022} known as (variational) Free Energy (FE). It captures the difference between the agent's internal representation of the world and its observations, making it a computationally feasible substitution for surprise. Therefore, by minimizing FE, agents implicitly minimize surprise \cite{friston_free-energy_2010}
 
-
-FE can be expressed as the Kullback-Leibler (KL) divergence between approximate posterior probability (Q) of hidden states (x) and their exact posterior probability (P) \cite{sedlak_active_2024, sedlak_adaptive_2024,sajid_active_2021}. 
+FE can be expressed as the Kullback-Leibler (KL) divergence between the approximate posterior probability (Q) of hidden states (x) and their exact posterior probability (P) \cite{sedlak_active_2024, sedlak_adaptive_2024,sajid_active_2021}. 
 \[FE = TODO Formula and variables for Free Energy\]
 
- minimizing free energy minimizes KL divergence and brings the agent’s beliefs closer to the true posterior distribution \(TODO: Distribution Variables here\).
+ minimizing free energy minimizes KL divergence and brings the agent’s beliefs closer to the true posterior distribution \(TODO: Distribution Variables here\). It can be represented mathematically using \cite{parr_active_2022}:
 
-\[
-\mathcal{S}(o) = -\ln{P(o)} 
-\]
-\[
-\mathcal{O}(o) = -\ln{P(o)} 
-\]
 
 \begin{equation}
-\mathcal{F} = \mathrm{KL}[Q(s) \parallel P(s|o)] - \ln P(o)
+F\left[Q, o\right] = D_\mathrm{{KL}}[Q(s) \parallel P(s|o)] \underbrace{ - \ln P(o)}_{\text{surprise}}
 \end{equation}
 
 \todo{check who boris cited in \cite{sedlak_adaptive_2024}}
 
 \textbf{Variable descriptions:}
 \begin{itemize}
+  \item $s$: Hidden States
+  \item $o$: Observations
   \item $Q(s)$: Approximate posterior (belief) over hidden states $s$, inferred by the agent.
   \item $P(o, s)$: Joint probability of observations $o$ and hidden states $s$ under the generative model.
   \item $P(o|s)$: Likelihood of observing $o$ given $s$ (encoded by matrix $\mathbf{A}$).
@@ -96,8 +91,11 @@ FE can be expressed as the Kullback-Leibler (KL) divergence between approximate 
   \item $\mathrm{KL}[Q(s) \parallel p(s|o)]$: Kullback--Leibler divergence between approximate posterior and true posterior.
 \end{itemize}
 
+
+\input{vector-drawings/fe_surprise_relationship}
+
  \subsubsection{Expected Free Energy}
-To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is done via Expected Free Energy (EFE). EFE extends the concept of variational Free Energy into the future, by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. The agent uses the EFE to decide on actions. EFE is made up of two key components \cite{friston_active_2022} % Active Inference: The Free Energy Principle in Mind, Brain, and Behavior%
+To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is done via Expected Free Energy (EFE). EFE extends the concept of variational Free Energy into the future by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. The agent uses the EFE to decide on actions. EFE is made up of two key components \cite{friston_active_2022} % Active Inference: The Free Energy Principle in Mind, Brain, and Behavior%
 \begin{enumerate}
   \item \textbf{Epistemic Value (Information Gain)} — Drives exploration by favoring actions that are expected to yield informative outcomes, improving the agent’s generative model.
   \item \textbf{Pragmatic Value} — Drives the agent to select actions that are likely to fulfill its explicit goals or preferences, i.e., it promotes exploitation.
@@ -106,11 +104,20 @@ To act in the world, agents must not only evaluate current states but also antic
 Together, these terms enable the agent to balance the classic exploration-exploitation tradeoff \cite{sedlak_adaptive_2024}. This dual drive allows AIF
 agents to maintain SLOs while learning optimal control strategies for software parameters. \cite{lapkovskis_benchmarking_2025}.
 
-\begin{equation}
-\mathbb{G}(\pi) = \underbrace{-\mathbb{E}_{q(o, s \mid \pi)} \left[ \ln q(s \mid \pi) - \ln q(s \mid o, \pi) \right]}_{\text{information gain}} - \underbrace{\mathbb{E}_{q(o \mid \pi)} \left[ \ln p(o) \right]}_{\text{pragmatic value}}
-\end{equation}
+Mathematically the EFE can be expressed as \cite{parr_active_2022}:
 
-\todo{Use formula from \cite{danilenka_adaptive_2025} with DKL}
+\[
+EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} \mathrm{D_{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }}_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln P(o \mid C) \right]}_{\text{pragmatic value}}
+\]
+
+Where C denotes the agent's preferences \cite{parr_active_2022}. For simplicity, the formula can be rewritten using the \(\Tilde{P}\), the generative model biased towards the agent's preferences.
+
+\[
+EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} D_\mathrm{{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }}_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln \Tilde{P}(o) \right]}_{\text{pragmatic value}}
+\]
+
+
+
 
 \todo{check who they cited in \cite{danilenka_adaptive_2025}}
 
@@ -120,12 +127,14 @@ agents to maintain SLOs while learning optimal control strategies for software p
   \item $s$: Hidden States
   \item $o$: Observations
   \item $\pi$: A policy, i.e., a sequence of actions the agent may take.
-  \item $q(s \mid \pi)$: Predicted posterior distribution over hidden states $s$ under policy $\pi$.
-  \item $q(s \mid o, \pi)$: Updated posterior over states after observing $o$, given policy $\pi$.
-  \item $q(o \mid \pi)$: Predictive distribution over future observations under policy $\pi$.
-  \item $p(o)$: Preferred (prior) probability of observations, encoded as agent’s prior preferences.
+  \item $Q(s \mid \pi)$: Predicted posterior distribution over hidden states $s$ under policy $\pi$.
+  \item $Q(s \mid o, \pi)$: Updated posterior over states after observing $o$, given policy $\pi$.
+  \item $Q(o \mid \pi)$: Predictive distribution over future observations under policy $\pi$.
+  \item $Q(o)$: Preferred (prior) probability of observations, encoded as agent’s prior preferences.
+  \item \(\Tilde{P}\) represents a generative model ''biased'’ towards the preferences
+  \item \(\Tilde{P}(o)\) represents a ‘predictive prior’ over observations \(o\).
+ 
 \end{itemize}
-
 
 
 

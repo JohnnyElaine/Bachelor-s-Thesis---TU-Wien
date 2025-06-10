@@ -55,7 +55,7 @@ processing parameters to match workload and resource conditions.
 and resource constraints under realistic edge workloads by using a video stream processing prototype based on YOLO object detection.
 \end{itemize}
 
-\section{Propsed Approach}
+\section{Proposed Approach}
 This thesis proposes a novel distributed parallel pipeline architecture for edge data stream processing, which is tightly coupled with a real-time elasticity mechanism governed by an active inference agent. In this architecture, data streams are partitioned and processed in parallel across multiple worker nodes. Each worker executes inference or transformation tasks, while a collector node aggregates the results. Crucially, a central agent continuously monitors SLOs and system state, and adjusts stream parameters to maximize Quality of Experience (QoE). To balance the resource- and QoE requirements, the system implements Service Level Objectives (SLOs), a fundamental concept used to meet the performance and quality targets of the system \cite{sedlak_towards_2025, nastic_sloc_2020}.
 
 The distinguishing contribution of this work is the application of active inference as a generic,

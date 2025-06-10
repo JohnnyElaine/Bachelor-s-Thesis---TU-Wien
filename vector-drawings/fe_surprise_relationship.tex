@@ -1,0 +1,42 @@
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[>=latex, thick, font=\small]
+
+% LEFT DIAGRAM
+
+% Upper bound label
+\node at (0,4) {\textbf{Upper bound}};
+\draw[dashed, thick] (-0.9,3.8) -- (0.9,3.8);
+\node[anchor=west] at (1.2,3.8) {$F[Q, y]$};
+
+% Left Arrow
+\draw[<->, thick]  (0,1.2) -- (0,3.7);
+\node[anchor=west] at (0.25,2.5) {$D_{\mathrm{KL}}[Q(x) \parallel P(x \mid y)]$};
+
+% Surprise label
+\draw[thick] (-0.8,1.1) -- (0.8,1.1);
+\node at (0,0.8) {\textbf{Surprise}};
+\node[anchor=west] at (1.2,1.1) {$-\ln P(y)$};
+
+% RIGHT DIAGRAM
+
+% Dotted line from above to upper bound
+\draw[dotted, thick] (6,4.5) -- (6,3.8);
+
+% Upper bound label
+\node at (6,3.5) {\textbf{Upper bound}};
+\draw[dashed, thick] (5.1,3.3) -- (6.9,3.3);
+\node[anchor=west] at (7.1,3.3) {$F[Q, o]$};
+
+% Right Arrow
+\draw[<->, thick] (6,1.2) -- (6,3.2);
+\node[anchor=west] at (6.25,2.1) {$D_{\mathrm{KL}}[Q(s) \parallel P(s \mid o)]$};
+
+% Surprise label
+\draw[thick] (5.2,1.1) -- (6.8,1.1);
+\node at (6,0.8) {\textbf{Surprise}};
+\node[anchor=west] at (7.1,1.1) {$-\ln P(o)$};
+
+\end{tikzpicture}
+\caption{Free energy as an upper bound on surprise. Left: inference as minimization. Right: graphical interpretation.}
+\end{figure}
