@@ -1,5 +1,6 @@
 \begin{figure}[h!]
 \centering
+\scalebox{1.2}{ % <-- scale factor
 \begin{tikzpicture}[>=latex, thick, font=\small]
 
 % LEFT DIAGRAM
@@ -41,5 +42,7 @@
 \node[anchor=west] at (7.1,1.1) {$-\ln P(o)$};
 
 \end{tikzpicture}
-\caption{Free energy as an upper bound on surprise. Left: inference as minimization. Right: graphical interpretation.}
+}
+\caption{(Variational) Free energy as an upper bound on surprise. (taken from \cite{parr_active_2022})}
+\label{fig:fe-surprise-relationship}
 \end{figure}
