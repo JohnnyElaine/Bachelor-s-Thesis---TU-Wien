@@ -68,28 +68,24 @@ When the \textit{generative process} and the \textit{generative model} differ, t
 To align the \textit{generative models} with the \textit{generative process}, the agent aims to reduce surprise to the maximum extent. A system cannot directly evaluate surprise, because this would require knowing all hidden states of the world \cite{friston_free-energy_2009}, i.e. the \textit{generative process}. Instead, an agent aims to 
 minimize an upper bound \cite{smith_step-by-step_2022} known as (variational) Free Energy (FE). It captures the difference between the agent's internal representation of the world and its observations, making it a computationally feasible substitution for surprise. Therefore, by minimizing FE, agents implicitly minimize surprise \cite{friston_free-energy_2010}
 
-FE can be expressed as the Kullback-Leibler (KL) divergence between the approximate posterior probability (Q) of hidden states (x) and their exact posterior probability (P) \cite{sedlak_active_2024, sedlak_adaptive_2024,sajid_active_2021}. 
-\[FE = TODO Formula and variables for Free Energy\]
+FE can be expressed as the Kullback-Leibler (\(D_\mathrm{KL}\)) divergence between the approximate posterior probability (Q) of hidden states (s) and their exact posterior probability (P) \cite{parr_active_2022,sajid_active_2021}:
 
- minimizing free energy minimizes KL divergence and brings the agent’s beliefs closer to the true posterior distribution \(TODO: Distribution Variables here\). It can be represented mathematically using \cite{parr_active_2022}:
+\[
+F\left[Q, o\right] = D_\mathrm{KL}[Q(s) \parallel P(s|o)] \underbrace{ - \ln P(o)}_{\text{surprise}}
+\]
 
-
-\begin{equation}
-F\left[Q, o\right] = D_\mathrm{{KL}}[Q(s) \parallel P(s|o)] \underbrace{ - \ln P(o)}_{\text{surprise}}
-\end{equation}
-
-\todo{check who boris cited in \cite{sedlak_adaptive_2024}}
-
-\textbf{Variable descriptions:}
 \begin{itemize}
-  \item $s$: Hidden States
-  \item $o$: Observations
-  \item $Q(s)$: Approximate posterior (belief) over hidden states $s$, inferred by the agent.
-  \item $P(o, s)$: Joint probability of observations $o$ and hidden states $s$ under the generative model.
-  \item $P(o|s)$: Likelihood of observing $o$ given $s$ (encoded by matrix $\mathbf{A}$).
-  \item $P(s)$: Prior over hidden states (e.g., initial state prior $\mathbf{D}$ or transition prior via $\mathbf{B}$).
-  \item $\mathrm{KL}[Q(s) \parallel p(s|o)]$: Kullback--Leibler divergence between approximate posterior and true posterior.
+  \item \( Q(s) \): Approximate posterior (variational distribution) over hidden states \(s\).
+  \item \( P(s \mid o) \): True posterior over hidden states  \(s\) given observations \(o\), defined by the generative model.
+  \item \( P(o) \): Marginal likelihood (model evidence); the probability of the observations \(o\) under the  model.
+  \item \( D_\mathrm{KL}\left[ Q(s) \parallel P(s \mid o) \right] \): Kullback–Leibler divergence measuring the dissimilarity between the variational posterior \( Q(s) \) and the true posterior \( P(s \mid o) \).
 \end{itemize}
+
+\todo{Chec ob variblen richtig erklärt sind}
+
+Minimizing free energy minimizes KL divergence and brings the agent’s beliefs closer to the true posterior distribution \(TODO: Distribution Variables here\). 
+
+
 
 
 \input{vector-drawings/fe_surprise_relationship}
