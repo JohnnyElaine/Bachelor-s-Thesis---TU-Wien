@@ -65,32 +65,35 @@ outcomes is known as the \textit{generative process} \cite{friston_free-energy_2
 When the \textit{generative process} and the \textit{generative model} differ, the agent will be ``surprised``, causing it to adjust its model closer towards the process \cite{bruineberg_free-energy_2018}. The closer the generative model is to the underlying generative process, the higher the precision of the agent's predictions is \cite{sedlak_active_2024}.
 
 \subsubsection{Free Energy minimization}
-To align the \textit{generative models} with the \textit{generative process}, the agent aims to reduce surprise to the maximum extent. A system cannot directly evaluate surprise, because this would require knowing all hidden states of the world \cite{friston_free-energy_2009}, i.e. the \textit{generative process}. Instead, an agent aims to 
-minimize an upper bound \cite{smith_step-by-step_2022} known as (variational) Free Energy (FE). It captures the difference between the agent's internal representation of the world and its observations, making it a computationally feasible substitution for surprise. Therefore, by minimizing FE, agents implicitly minimize surprise \cite{friston_free-energy_2010}
+To align the \textit{generative models} with the \textit{generative process}, the agent aims to reduce surprise to the maximum extent. A system cannot directly evaluate surprise, because this would require knowing all hidden states of the world \cite{friston_free-energy_2009}, i.e. the \textit{generative process}. Instead, an agent aims to minimize an upper bound \cite{smith_step-by-step_2022} known as (variational) Free Energy (FE). It captures the difference between the agent's internal representation of the world and its observations, making it a computationally feasible substitution for surprise. Therefore, by minimizing FE, agents implicitly minimize surprise \cite{friston_free-energy_2010}
 
-FE can be expressed as the Kullback-Leibler (\(D_\mathrm{KL}\)) divergence between the approximate posterior probability (Q) of hidden states (s) and their exact posterior probability (P) \cite{parr_active_2022,sajid_active_2021}:
+Conceptually, Free Energy can be expressed using the Kullback–Leibler (KL) divergence between an approximate posterior distribution \(Q(s)\) and the true posterior model \(P( s \mid o)\) \cite{parr_active_2022,sajid_active_2021}.
 
-\[
-F\left[Q, o\right] = D_\mathrm{KL}[Q(s) \parallel P(s|o)] \underbrace{ - \ln P(o)}_{\text{surprise}}
-\]
+
+\begin{equation}
+F\left[Q, o\right] = D_\mathrm{KL}[Q(s) \parallel P(s|o)] \underbrace{ - \ln P(o)}_{\text{surprise}}  
+\label{eq:free-energy-concept}
+\end{equation}
 
 \begin{itemize}
   \item \( Q(s) \): Approximate posterior (variational distribution) over hidden states \(s\).
-  \item \( P(s \mid o) \): True posterior over hidden states  \(s\) given observations \(o\), defined by the generative model.
+  \item \( P(s \mid o) \): Exact (true) posterior over hidden states  \(s\) given observations \(o\), derived from the generative model. It 
   \item \( P(o) \): Marginal likelihood (model evidence); the probability of the observations \(o\) under the  model.
-  \item \( D_\mathrm{KL}\left[ Q(s) \parallel P(s \mid o) \right] \): Kullback–Leibler divergence measuring the dissimilarity between the variational posterior \( Q(s) \) and the true posterior \( P(s \mid o) \).
+  \item \( D_\mathrm{KL}\left[ Q(s) \parallel P(s \mid o) \right] \): KL divergence measuring the dissimilarity between the variational posterior \( Q(s) \) and the true posterior \( P(s \mid o) \).
 \end{itemize}
 
-\todo{Chec ob variblen richtig erklärt sind}
+Although Eq.~\ref{eq:free-energy-concept} is conceptually useful, it cannot be computed directly \cite{smith_step-by-step_2022}: The marginal likelihood \( P(o) \) requires integrating over all possible hidden states, which is generally intractable. Likewise, computing the true posterior \( P(s \mid o) \) requires the marginal likelihood \( P(o) \) and is therefore equally intractable. Instead, Free Energy is evaluated in a form that only requires the generative model \( P(s, o) \) and the variational distribution \( Q(s) \):
 
-Minimizing free energy minimizes KL divergence and brings the agent’s beliefs closer to the true posterior distribution \(TODO: Distribution Variables here\). 
+\begin{equation}
+F[Q, o] = \mathbb{E}_{Q(s)}[\ln Q(s) - \ln P(s, o)]
+\label{eq:free-energy-computation}
+\end{equation}
 
-
-
+Minimizing free energy brings \( Q(s) \) closer to \( P(s \mid o) \) in terms of KL divergence, reducing surprise \cite{smith_step-by-step_2022}.
 
 \input{vector-drawings/fe_surprise_relationship}
 
- \subsubsection{Expected Free Energy}
+\subsubsection{Expected Free Energy}
 To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is done via Expected Free Energy (EFE). EFE extends the concept of variational Free Energy into the future by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. The agent uses the EFE to decide on actions. EFE is made up of two key components \cite{friston_active_2022} % Active Inference: The Free Energy Principle in Mind, Brain, and Behavior%
 \begin{enumerate}
   \item \textbf{Epistemic Value (Information Gain)} — Drives exploration by favoring actions that are expected to yield informative outcomes, improving the agent’s generative model.
@@ -101,10 +104,20 @@ Together, these terms enable the agent to balance the classic exploration-exploi
 agents to maintain SLOs while learning optimal control strategies for software parameters. \cite{lapkovskis_benchmarking_2025}.
 
 Mathematically, the EFE can be expressed as \cite{parr_active_2022}:
-
 \[
 EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} \mathrm{D_{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }}_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln P(o \mid C) \right]}_{\text{pragmatic value}}
 \]
+
+\begin{itemize}
+  \item $C$: The agents preferences
+  \item $\pi$: A policy, i.e., a sequence of actions the agent may take.
+  \item $Q(s \mid \pi)$: Predicted posterior distribution over hidden states $s$ under policy $\pi$.
+  \item $Q(s \mid o, \pi)$: Updated posterior over states after observing $o$, given policy $\pi$.
+  \item $Q(o \mid \pi)$: Predictive distribution over future observations under policy $\pi$.
+  \item $Q(o)$: Preferred (prior) probability of observations, encoded as agent’s prior preferences.
+  \item \(\Tilde{P}\) represents a generative model ''biased'’ towards the preferences
+  \item \(\Tilde{P}(o)\) represents a ‘predictive prior’ over observations \(o\).
+\end{itemize}
 
 Where C denotes the agent's preferences \cite{parr_active_2022}. For simplicity, the formula can be rewritten using the \(\Tilde{P}\), the generative model biased towards the agent's preferences.
 
@@ -112,13 +125,6 @@ Where C denotes the agent's preferences \cite{parr_active_2022}. For simplicity,
 EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} D_\mathrm{{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }}_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln \Tilde{P}(o) \right]}_{\text{pragmatic value}}
 \]
 
-
-
-
-\todo{check who they cited in \cite{danilenka_adaptive_2025}}
-
-
-\textbf{Variable explanations:}
 \begin{itemize}
   \item $s$: Hidden States
   \item $o$: Observations
@@ -129,7 +135,6 @@ EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} D_\mathrm{{KL} \left[ Q(s \mid o,
   \item $Q(o)$: Preferred (prior) probability of observations, encoded as agent’s prior preferences.
   \item \(\Tilde{P}\) represents a generative model ''biased'’ towards the preferences
   \item \(\Tilde{P}(o)\) represents a ‘predictive prior’ over observations \(o\).
- 
 \end{itemize}
 
 
