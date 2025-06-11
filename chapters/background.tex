@@ -94,51 +94,35 @@ Minimizing free energy brings \( Q(s) \) closer to \( P(s \mid o) \) in terms of
 \input{vector-drawings/fe_surprise_relationship}
 
 \subsubsection{Expected Free Energy}
-To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is done via Expected Free Energy (EFE). EFE extends the concept of variational Free Energy into the future by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. The agent uses the EFE to decide on actions. EFE is made up of two key components \cite{friston_active_2022} % Active Inference: The Free Energy Principle in Mind, Brain, and Behavior%
+To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is formalized by the Expected Free Energy (EFE). EFE extends the concept of variational Free Energy into the future by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. Agents use EFE to select actions that minimize anticipated surprise and uncertainty. EFE is made up of two key components \cite{parr_active_2022}:
+
 \begin{enumerate}
   \item \textbf{Epistemic Value (Information Gain)} — Drives exploration by favoring actions that are expected to yield informative outcomes, improving the agent’s generative model.
-  \item \textbf{Pragmatic Value} — Drives the agent to select actions that are likely to fulfill its explicit goals or preferences, i.e., it promotes exploitation.
+  \item \textbf{Pragmatic Value} — Drives exploitation by selecting actions that are likely to fulfill its explicit goals or preferences.
 \end{enumerate}
 
-Together, these terms enable the agent to balance the classic exploration-exploitation tradeoff \cite{sedlak_adaptive_2024}. This dual drive allows AIF
-agents to maintain SLOs while learning optimal control strategies for software parameters. \cite{lapkovskis_benchmarking_2025}.
+Together, these terms enable the agent to balance the classic exploration/exploitation tradeoff \cite{sedlak_adaptive_2024, danilenka_adaptive_2025}. In the context of edge computing, this dual mechanism enables Active Inference (AIF) agents to maintain service-level objectives (SLOs) while learning optimal control strategies for dynamic system parameters. \cite{lapkovskis_benchmarking_2025}.
 
-Mathematically, the EFE can be expressed as \cite{parr_active_2022}:
-\[
+Mathematically, the EFE under policy \(\pi\) can be expressed as \cite{parr_active_2022}:
+\begin{equation}
 EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} \mathrm{D_{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }}_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln P(o \mid C) \right]}_{\text{pragmatic value}}
-\]
+\label{eq:expected-free-energy-formal}
+\end{equation}
 
 \begin{itemize}
-  \item $C$: The agents preferences
-  \item $\pi$: A policy, i.e., a sequence of actions the agent may take.
-  \item $Q(s \mid \pi)$: Predicted posterior distribution over hidden states $s$ under policy $\pi$.
-  \item $Q(s \mid o, \pi)$: Updated posterior over states after observing $o$, given policy $\pi$.
-  \item $Q(o \mid \pi)$: Predictive distribution over future observations under policy $\pi$.
-  \item $Q(o)$: Preferred (prior) probability of observations, encoded as agent’s prior preferences.
-  \item \(\Tilde{P}\) represents a generative model ''biased'’ towards the preferences
-  \item \(\Tilde{P}(o)\) represents a ‘predictive prior’ over observations \(o\).
+  \item \( \pi \): A policy, i.e., a sequence of actions considered by the agent.
+  \item \( Q(s \mid \pi) \): Predictive posterior over hidden states \(s\) under policy \(\pi\).
+  \item \( Q(s \mid o, \pi) \): Updated posterior over hidden states \(s\) after observing \(o\), under policy \(\pi\).
+  \item \( Q(o \mid \pi) \): Predictive distribution over future observations under policy \(\pi\).
+  \item \( P(o \mid C) \): Probability of observations \(o\) under the agent’s prior preferences \(C\); that is, how desirable the agent considers the observations \(o\) to be, given its preferences.
+  \item \( C \): Encodes which outcomes are preferred.
 \end{itemize}
 
-Where C denotes the agent's preferences \cite{parr_active_2022}. For simplicity, the formula can be rewritten using the \(\Tilde{P}\), the generative model biased towards the agent's preferences.
+For notational simplicity, Expected Free Energy can be equivalently written using \( \tilde{P}(o) \), the generative model biased towards the agent's preferences.
 
-\[
-EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} D_\mathrm{{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }}_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln \Tilde{P}(o) \right]}_{\text{pragmatic value}}
-\]
-
-\begin{itemize}
-  \item $s$: Hidden States
-  \item $o$: Observations
-  \item $\pi$: A policy, i.e., a sequence of actions the agent may take.
-  \item $Q(s \mid \pi)$: Predicted posterior distribution over hidden states $s$ under policy $\pi$.
-  \item $Q(s \mid o, \pi)$: Updated posterior over states after observing $o$, given policy $\pi$.
-  \item $Q(o \mid \pi)$: Predictive distribution over future observations under policy $\pi$.
-  \item $Q(o)$: Preferred (prior) probability of observations, encoded as agent’s prior preferences.
-  \item \(\Tilde{P}\) represents a generative model ''biased'’ towards the preferences
-  \item \(\Tilde{P}(o)\) represents a ‘predictive prior’ over observations \(o\).
-\end{itemize}
-
-
-
+\begin{equation}
+EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} D_\mathrm{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln \Tilde{P}(o) \right]}_{\text{pragmatic value}}
+\end{equation}
 
 \subsection{Active Inference}
 Active inference (AIF) operationalizes the Free Energy Principle in artificial agents, extending it to encompass both state estimation and action selection \cite{sedlak_equilibrium_2024, lanillos_active_2021}. To implement the concepts of the Free Energy Principle, an agent maintains a \textit{generative model}, which includes the following categorical distributions \cite{heins_pymdp_2022}:
