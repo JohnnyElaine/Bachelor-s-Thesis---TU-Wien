@@ -48,8 +48,6 @@ maintains equilibrium with its environment over time must minimize the long-term
 internal beliefs and external sensory states \cite{friston_active_2017}. This divergence, known as
 surprise, refers to the difference between what an agent predicts based on its internal model and what it observes in the environment \cite{sedlak_adaptive_2024}.
 
-\todo{Add mathematical variable for surprse}
-
 \subsubsection{Generative Process and Model}
 Agents cannot minimize surprise directly, since the actual way that the world produces sensory data
 is unknown. This process that describes the true causes for how the world generates observable
@@ -161,4 +159,4 @@ In distributed edge pipelines, AIF agents can operate locally, managing a single
 
 This thesis implements a single-agent variant of this framework: an AIF controller monitors the global state of a distributed stream processing pipeline and dynamically adjusts elasticity parameters that impact the quality of the system's output. The agent intervenes when SLOs (e.g., memory constraints) approach critical levels and selects adaptations that restore compliance while improving its generative model \cite{sedlak_equilibrium_2024}.
 
-Although focused on a centralized AIF controller, the underlying framework is inherently extensible to multi-agent settings, where distributed agents can share beliefs or synchronize generative models. Prior work has demonstrated how such agents can collaboratively manage resources and task assignments in real-time systems while maintaining local autonomy and decentralized control \cite{sedlak_slo-aware_2025}. Such concepts will be discussed in chapter\ref{chap:related-work}
+Although focused on a centralized AIF controller, the underlying framework is inherently extensible to multi-agent settings, where distributed agents can share beliefs or synchronize generative models. Prior work has demonstrated how such agents can collaboratively manage resources and task assignments in real-time systems while maintaining local autonomy and decentralized control \cite{sedlak_slo-aware_2025}. Such concepts will be discussed in chapter~\ref{chapter:related-work}
