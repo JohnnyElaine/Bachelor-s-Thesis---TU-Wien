@@ -1,9 +1,88 @@
 \chapter{Evaluation}
-\todo{Enter your text here.}
-The following chapter describes how the methodology was implemented and evaluated. 
+This chapter presents the implementation and evaluation of the proposed methodology outlined
+in chapter~\ref{chap:methodology}. It demonstrates the feasibility of using Active Inference (AIF) to dynamically manage elasticity in distributed edge pipelines while upholding Service Level Objectives (SLOs). This is achieved via a Python-based prototype that simulates a real-time video processing system and compares AIF to baseline control agents under constrained resources.
 
+The prototype of the distributed pipeline and the experimental results are available in a publicly accessible repository \footnote{The prototype of the stream processing framework is available at \href{https://github.com/JohnnyElaine/bsc_aif_parallel_pipeline}{GitHub}, accessed on July 31st 2024.}.
 
 \section{Implementation}
 \label{sec:implementation}
+The implemented prototype realizes the general distributed processing pipeline architecture using Python. It processes a video stream using YOLOv11 inference. For example, a video stream depicting highway traffic and using YOLOv11 object detection to detect the vehicles passing by.
+
+\subsection{System Architecture}
+The system is composed of three components:
+\begin{itemize}
+    \item \textbf{Producer:} Splits the frames of the video stream into \textit{tasks}, to be requested by the workers. It also acts as the central controller of elasticity and exposes control of the \textit{stream quality parameters} to its AIF agent.
+    \item \textbf{Workers:} Request \textit{tasks} from the Producer, run YOLOv11 inference and send the result to the Collector.
+    \item \textbf{Collector:} Aggregates results into an ordered output stream.
+\end{itemize}
+
+All nodes communicate asynchronously using ZeroMQ \cite{noauthor_zeromqpyzmq_nodate}. Task dispatch from the Producer to Workers uses the REQ-ROUTER pattern, forming a pull-based work distribution model, also known as a Load-Balancing Pattern. Processed results are forwarded from Workers to the Collector using the PUSH-PULL pattern. This design ensures that work is allocated based on each worker’s readiness, optimizing system responsiveness and throughput
+
+ZeroMQ sockets are multiplexed using event loops to allow simultaneous listening and sending. Task payloads (NumPy arrays) are transmitted as raw binary data without any copying, by leveraging the buffer interface they implement. Task metadata is serialized using msgpack \cite{noauthor_msgpackmsgpack-python_nodate} for compact binary transport.
+
+
+TODO: Figure of the overall system architecture
+
+\subsection{Producer Architecture}
+The producers primary responsibility lies in task generation, i.e., converting a video stream into frames, keyed by an ID. The created tasks are then buffered inside a \textit{task queue}, until they are consumed by a worker. Secondarily, it is responsible for maximizing the QoE of the results by upholding SLOs and efficiently utilizing the system's compute budget.
+
+\subsubsection{Service Level Objectives}
+Table~\ref{tab:slo-table} shows two types of SLOs intending to guarantee the quality of experience. These SLOs serve as constraints that guide the elastic adaptation process of the producer, helping to maintain a balance between processing quality and system stability.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}lcll@{}}
+        \toprule
+        \textbf{Var.} & \textbf{Rel.} & \textbf{Description} & \textbf{Impact} \\
+        \midrule
+        \textit{memory\_usage} & $\leq \theta_\text{mem}$ & container memory usage & memory\_usage $\rightarrow$ quality \\
+        \textit{task\_queue} & $\leq \theta_\text{queue}$ & producer task queue size & task\_queue $\rightarrow$ quality \\
+        \bottomrule
+    \end{tabular}
+    \caption{Service Level Objectives (SLOs) at the producer}
+    \label{tab:slo-table}
+\end{table}
+
+
+The \textbf{Memory Usage SLO} ensures that the container does not exceed a specified memory capacity \(\theta_\text{mem}\). This protects the system from memory saturation, which would cause severe performance degradation as tasks might be offloaded to slower storage or dropped entirely.
+
+The \textbf{Task Queue Size SLO} ensures that the number of unprocessed tasks remains within a reasonable limit \(\theta_\text{queue}\). A growing queue indicates that the processing capacity of the workers is insufficient for the current workload. This SLO thus acts as a safeguard for maintaining real-time responsiveness by triggering adaptation of quality parameters when a violation is detected. To ensure that processing keeps pace with the video stream, \(\theta_\text{queue}\)  should be set close to the source FPS, ensuring that no more than one second's worth of frames accumulates in the task queue at any time.
+
+\subsubsection{Elasticity and Stream Parameter Control}
+The \textit{Producer} serves as the central control entity for elasticity. It continuously monitors and adjusts three key \textit{quality parameters} of the video stream: (1) frames per second (\textit{fps}), (2) \textit{resolution}, and (3) \textit{inference quality}. While fps and resolution are directly set by the producer by modulating task generation frequency and resizing video frames, inference quality refers to the YOLOv11 model variant employed by the worker nodes, e.g., \texttt{LOW} $\rightarrow$ \texttt{YOLOv11n}, \texttt{MEDIUM} $\rightarrow$ \texttt{YOLOv11s}, \texttt{HIGH} $\rightarrow$ \texttt{YOLOv11m}.
+
+Although inference is executed on the workers, the producer dictates the inference quality of the entire system. To enforce a configuration change, it maintains a dedicated \textit{backlog} for each worker node. When the producer initiates a change (e.g., \texttt{MEDIUM} $\rightarrow$ \texttt{LOW}), it inserts the entry \texttt{CHANGE\_INFERENCE\_QUALITY=LOW} into the backlog of every registered worker. Upon the next task request, the worker's backlog is evaluated. If a configuration change is pending, the producer replies with a message of type \texttt{CHANGE} detailing all configuration changes the worker needs to make. This includes \texttt{CHANGE\_INFERENCE\_QUALITY=LOW}, instructing the worker to adapt its local inference model accordingly. Once the change is applied, the worker resumes normal task processing.
+
+This design ensures that all nodes operate under a globally consistent inference configuration while minimizing coordination overhead.
+
+\subsubsection{Active Inference Agent}
+\label{sec:evaluation-implementation-active-infernce-agemt}
+The control of the \textit{quality parameters} is exposed to the AIF agent running on the producer. The agent is implemented using pymdp \cite{heins_pymdp_2022}. The agent operates a \textit{generative model} that is constructed using: 
+\begin{itemize}
+  \item \textbf{Observation model \(P(o \mid s)\):} TODO
+  \item \textbf{Transition model \(P(s_{t+1} \mid s_t,a_t)\):} TODO
+  \item \textbf{Prior preferences over observations \(P(o)\):} Preferences strongly penalize SLO violations and weakly reward higher QoE. 
+  \item \textbf{Prior beliefs about hidden states \(P(s_0)\):} TODO
+\end{itemize}
+
+To continuously engage in an active inference cycle, the agent performs an active inference loop every second. Each cycle results in no action or a change in \textit{stream quality parameters}. 
+
+TODO: Figure depicting architecture
+\subsection{Worker Architecture}
+When the worker starts, it registers itself at the producer, receiving the current configuration for the stream. This includes the type of inference and the current \textit{inference quality}.
+TODO: Figure depicting architecture
+\subsection{Collector Architecture}
+TODO: Figure depicting architecture
+
+
 \section{Experimental Setup}
+video strem of highway, YOLOv11 detecting cars. 3 Workers
+
+\subsection{Environment}
+\subsection{Producer Paramters}
+SLO tresholds, 
+\subsection{Outage scenario}
+At 25\% of the simulation, one worker is deactivated
+At 75\%, the worker is reactivated
+
 \section{Results}

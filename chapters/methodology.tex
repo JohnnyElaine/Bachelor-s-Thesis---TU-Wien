@@ -1,4 +1,5 @@
 \chapter{Methodology}
+\label{chap:methodology}
 This chapter presents a general framework for upholding Service Level Objectives (SLOs) in distributed stream processing pipelines deployed in edge computing environments. The methodology addresses the central research question \ref{sec:research-question} of this thesis. To provide an answer, this thesis proposes a unified architecture that combines parallel stream processing with Active Inference (AIF)–based adaptive control. This architecture is designed to elastically adjust system behavior to uphold SLOs in the face of limited computational resources and dynamic workloads. It is designed to be generic, extensible, and applicable across a wide variety of real-time data stream applications at the edge.
 
 \section{System Architecture}
@@ -57,7 +58,7 @@ The Producer operates as the central controller of stream parameterization. The 
 
 \begin{itemize}
     \item \textbf{Task generation:} Stream parameters that directly affect the generation of tasks are changed directly at the producer level. The configuration then affects all newly generated tasks.
-    \item \textbf{Task processing:} Stream parameters that affect large changes on the worker, such as switching inference quality, require coordination between producer and worker. When the producer dictates a change, it enqueues a control task, detailing the nature of the change, in the \textbf{backlog}\label{def:backlog} of each worker. The next time a worker requests a task from the producer, it receives the control tasks and makes the described changes, before continuing with normal stream processing. This ensures synchronized configuration among workers.
+    \item \textbf{Task processing:} Stream parameters that affect large changes on the worker, such as switching inference quality, require coordination between producer and worker. When the producer dictates a change, it enqueues a control task, detailing the nature of the change, in the \textit{backlog}\label{def:backlog} of each worker. The next time a worker requests a task from the producer, it receives the control tasks and makes the described changes, before continuing with normal stream processing. This ensures synchronized configuration among workers.
 \end{itemize}
 \todo{Bild welches YOLO model change zeigt + Backlog}
 
@@ -86,7 +87,7 @@ The AIF loop~\ref{sec:active-inference-loop} is executed periodically during the
 \subsubsection{Active Inference Loop}
 Each iteration of the loop involves a three-step procedure: observation, state and policy inference, and action sampling.
 
-This sub-section describes the cycle based on the \texttt{pymdp} \cite{heins_pymdp_2022} library, later utilized in the implementation~\ref{sec:implementation}. This choice does not constrain the generality of the proposed methodology. The loop structure, model components, and control logic are independent of any specific framework and can be implemented using alternative tools or custom inference routines. However, \texttt{pymdp} offers a modular and transparent interface for constructing Active Inference agents in discrete state spaces, well-suited to the modeling assumptions underlying this work. Its use in this thesis serves both as a practical vehicle for experimentation and as a clear reference implementation of the conceptual model described. 
+This sub-section describes the cycle based on the \texttt{pymdp} \cite{heins_pymdp_2022}, a python library implementing AIF for Markov Decision Processes. It serves as a great abstraction for this explanation and is later utilized in the implementation~\ref{sec:evaluation-implementation-active-infernce-agemt}. This choice does not constrain the generality of the proposed methodology. The loop structure, model components, and control logic are independent of any specific framework and can be implemented using alternative tools or custom inference routines. However, \texttt{pymdp} offers a modular and transparent interface for constructing Active Inference agents in discrete state spaces, well-suited to the modeling assumptions underlying this work. Its use in this thesis serves both as a practical vehicle for experimentation and as a clear reference implementation of the conceptual model described. 
 
 \begin{enumerate}
     \item \textbf{Observation Sampling (Peception):} The agent receives updated observations from the environment via the Producer. These include current values for the stream quality parameters and the normalized SLO values. The observationsa are then encoded in \texttt{o\_t}.
