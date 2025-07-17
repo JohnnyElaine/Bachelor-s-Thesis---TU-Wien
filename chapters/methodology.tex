@@ -52,7 +52,9 @@ indicating a minor SLO violation.
 This formulation enables a uniform treatment of heterogeneous resource constraints, allowing the system to monitor, compare, and respond to SLO fulfillment in a principled and quantitative manner.
 
 \subsection{Multi-Dimensional Elasticity}
-Each stream processing task can be executed under different configurations, with associated computational demands. A configuration defines a set of \textit{stream quality parameters}, such as inference quality, task frequency and task size. All of these parameters directly impact QoE and computational demands. The system supports multi-dimensional elasticity, meaning that these parameters can be individually tuned during runtime.
+Due to the resource-constrained nature of edge computing environments, vertical or horizontal scaling techniques cannot be used to uphold SLOs. To fulfill SLOs, the system must dynamically adapt the computational demand to fit the system's resource budget, meaning specific parameters need to be modifiable during runtime.
+
+This requires that each stream processing task supports multiple execution configurations, each with associated performance characteristics and requirements. A configuration defines a set of \textit{stream quality parameters}, such as inference quality, task frequency and task size. All of these parameters directly impact QoE and computational demands. The system supports multi-dimensional elasticity, meaning that these parameters can be individually tuned during runtime.
 
 The Producer operates as the central controller of stream parameterization. The changing of stream parameter can be separated into two types:
 
@@ -90,11 +92,11 @@ Each iteration of the loop involves a three-step procedure: observation, state a
 This sub-section describes the cycle based on the \texttt{pymdp} \cite{heins_pymdp_2022}, a python library implementing AIF for Markov Decision Processes. It serves as a great abstraction for this explanation and is later utilized in the implementation~\ref{sec:evaluation-implementation-active-infernce-agemt}. This choice does not constrain the generality of the proposed methodology. The loop structure, model components, and control logic are independent of any specific framework and can be implemented using alternative tools or custom inference routines. However, \texttt{pymdp} offers a modular and transparent interface for constructing Active Inference agents in discrete state spaces, well-suited to the modeling assumptions underlying this work. Its use in this thesis serves both as a practical vehicle for experimentation and as a clear reference implementation of the conceptual model described. 
 
 \begin{enumerate}
-    \item \textbf{Observation Sampling (Peception):} The agent receives updated observations from the environment via the Producer. These include current values for the stream quality parameters and the normalized SLO values. The observationsa are then encoded in \texttt{o\_t}.
+    \item \textbf{Observation Sampling (Peception):} The agent receives updated observations from the environment via the Producer. These include current values for the stream quality parameters and the normalized SLO values. The observations are then encoded in \(o_t\).
 
-    \item \textbf{Belief Updating over States and Policies:} The agent updates its beliefs about hidden states $s_t$ using the latest observation $o_t$, applying variational Bayesian inference to approximate the posterior $Q(s_t)$. This is handled via:
+    \item \textbf{Belief Updating over States and Policies:} The agent updates its beliefs about hidden states $s_t$ using the latest observation \(o_t\), applying variational Bayesian inference to approximate the posterior \(Q(s_t)\). This is handled via:
     \begin{quote}
-        \texttt{agent.infer\_states([o\_t])}
+        \texttt{agent.infer\_states(\(o_t\))}
     \end{quote}
     Subsequently, the agent infers a posterior distribution over policies $\pi$, each representing a sequence of actions (e.g., changing inference quality) over a receding horizon. Policies are evaluated by their expected free energy $\mathbb{G}(\pi)$, which integrates both \emph{epistemic value} (information gain) and \emph{instrumental value} (goal fulfillment). Policies minimizing expected free energy are preferred. This step is implemented via:
     \begin{quote}
@@ -102,6 +104,12 @@ This sub-section describes the cycle based on the \texttt{pymdp} \cite{heins_pym
     \end{quote}
      Policies that minimize anticipated SLO violations while improving QoE are preferred.
 
+     In addition, the agent updates its generative model by refining its beliefs about the observation and transition probabilities through
+    \begin{quote}
+        \texttt{agent.update\_A(\(o_t\))} \\
+        \texttt{agent.update\_B(\(Q(s_t)\))}
+    \end{quote}
+    
     \item \textbf{Action Selection:} The agent samples the most promising action from the posterior over policies and executes the first action in the sequence. This corresponds to reconfiguring the stream pipeline by adjusting stream parameters. Execution is performed via:
     \begin{quote}
         \texttt{action = agent.sample\_action()}
