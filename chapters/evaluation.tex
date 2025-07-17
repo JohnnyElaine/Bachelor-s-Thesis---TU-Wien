@@ -1,16 +1,102 @@
 \chapter{Evaluation}
+\label{chap:evaluation}
+
+This chapter evaluates the methodology proposed in Chapter~\ref{chap:methodology} by applying the implementation described in Chapter~\ref{chap:implementation}. The objective is to empirically assess whether an Active Inference (AIF) agent can dynamically control computational elasticity to uphold Service Level Objectives (SLOs) while maximizing Quality of Experience (QoE) in edge computing environments. To provide a grounded comparison, we contrast the AIF agent with a simple heuristic agent under three controlled scenarios: a stable baseline, variable computational demand, and fluctuating computational budget. Each scenario simulates different real-world challenges encountered in distributed edge deployments, such as load bursts, resource contention, and partial node failure.
+
+\section{Baseline: Heuristic Control Agent}
+\label{sec:evaluation-heuristic}
+
+To evaluate the effectiveness of the Active Inference approach, we implement a baseline agent that follows a fixed heuristic policy. This agent operates reactively based on SLO values observed during runtime. Whenever an SLO violation is detected, the heuristic agent adjusts stream parameters with the highest capacity. If the parameters have the same capacity, the decreasing action is taken according to a predefined order of importance: first reducing the inference quality, then the fps, and finally the resolution. When all SLos are overfullfilled, i.e., \(\text{SLO-Value} < 0.85\) and the current configuration is not maximal, it incrementally scales the quality parameters back up in the same order.
+When the SLOs are fulfilled but too close to the critical threshold, i.e., \(0.85 \leq \text{SLO-Value} \leq 1\), no action is taken.
+
+The heuristic agent does not use a generative model or perform any probabilistic inference. It cannot anticipate future states or reason under uncertainty. This makes it inherently limited to short-term, reactive control decisions. Despite its simplicity, this agent serves as a relevant baseline for highlighting the benefits of model-based adaptation under the Active Inference framework. The comparison focuses on control stability, responsiveness, and long-term QoE.
+
 \section{Experimental Setup}
-video strem of highway, YOLOv11 detecting cars. 3 Workers
+\label{sec:evaluation-setup}
 
 \subsection{Environment}
-\subsection{Producer Paramters}
-SLO thresholds, 
-\subsection{base Case scenario}
-\subsection{High Workload scenario}
-multiple cameras, high FPS.
-Kamera wird innerhalb des Streams zugeschalten
-\subsection{Outage scenario}
-At 25\% of the simulation, one worker is deactivated
-At 75\%, the worker is reactivated
+\label{sec:evaluation-environment}
 
-\section{Results}
+All experiments are conducted in a simulated edge computing environment using the prototype implementation described in Chapter~\ref{chap:implementation}. The system processes a live video stream of highway traffic using YOLOv11 inference for vehicle detection. The stream is segmented into frames by the producer and distributed to workers for parallel processing. The collector assembles the results into a final output stream.
+
+Each worker simulates a bounded compute capacity by artificially delaying inference based on a configurable slowdown factor. The producer uses SLOs to track system state and controls three stream parameters: FPS, resolution, and inference quality. The experiments are run with both the AIF agent and the heuristic baseline to allow direct comparison.
+
+Metrics are sampled continuously and include SLO values and Stream quality parameters (FPS, resolution, inference quality). Each experiment lasts TODO seconds.
+
+\subsubsection{Hardware and Software}
+All simulations are executed in a controlled single-machine environment to ensure reproducibility and eliminate variance introduced by distributed hardware. The system configuration is as follows:
+
+\begin{table}[H]
+\centering
+\caption{Hardware and Software Configuration}
+\label{tab:hardware-software}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{Specification} \\
+\midrule
+Operating System & Windows 11, Version 23H2 (Build 22631.5335) \\
+Python Runtime & Python 3.12.2 \\
+CPU & AMD Ryzen 7 7800X3D (8 cores, 16 threads) \\
+GPU & Nvidia GeForce GTX 1660Ti (MSI GTX Ti Ventus XS OC) \\
+GPU Driver Version & 576.88 \\
+Installed CUDA Version & 12.9 \\
+CUDA Compiler Version & 12.6 (cuda\_12.6.r12.6/compiler.34841621\_0) \\
+Memory & 32\,GB DDR5 RAM @ 4800\,MHz (dual channel) \\
+Storage & WD Black SN770 2\,TB NVMe SSD \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+This configuration provides sufficient headroom for parallel task execution and GPU-accelerated inference, while reflecting performance characteristics common in high-end edge servers and developer workstations.
+
+\subsection{Scenario A: Base Case}
+\label{sec:evaluation-base}
+
+This scenario evaluates the controller behavior in a stable environment. Three workers are instantiated with fixed computational capacities of 0.6, 0.5, and 0.4 (normalized). A single video stream is processed with a constant target FPS.
+
+This setting serves as a baseline to assess the steady-state behavior of both agents. The system starts with the highest possible configuration (30 FPS, 1080p resolution, YOLOv11m), and both agents are expected to converge to a sustainable configuration that satisfies all SLOs. The goal is to evaluate whether the AIF agent reaches optimal QoE faster, switches less frequently, and maintains lower SLO violations compared to the heuristic agent.
+
+
+
+\subsection{Scenario A: Base Case}
+\label{sec:evaluation-base}
+
+This scenario evaluates agents' behavior in a stable and controlled environment. It serves as the baseline to assess the steady-state behavior of both agents. The goal is to analyze convergence behavior, control stability, and SLO compliance in the absence of external perturbations.
+
+The experiment is conducted using three worker nodes, each assigned a fixed computational capacity:
+\begin{itemize}
+    \item Worker 1: 60\% of full capacity
+    \item Worker 2: 50\% of full capacity
+    \item Worker 3: 40\% of full capacity
+\end{itemize}
+
+These normalized capacity values simulate processing slowdowns by artificially extending inference time. The capacities are deliberately unequal to reflect the heterogeneity typical of real-world edge environments, where nodes differ in hardware capabilities, energy budgets, or concurrent workloads.
+
+A single video stream is processed at a constant source frame rate. At the beginning of the experiment, the system is initialized with the highest possible configuration: 30 FPS, 1080p resolution, and the YOLOv11m model. This starting point is intentionally unsustainable under the given compute constraints and is expected to trigger elastic adaptation by the controller. The goal is to evaluate whether the AIF agent reaches optimal QoE faster, switches less frequently, and maintains fewer SLO violations compared to the heuristic agent.
+
+\subsection{Scenario B: Variable Computational Demand}
+\label{sec:evaluation-variable-demand}
+
+This scenario simulates a dynamic workload by varying the number of concurrent video streams during runtime. Three workers are used with fixed computational capacity, and the producer initiates a stream multiplier schedule:
+
+\begin{itemize}
+    \item 0–15s: 1 stream
+    \item 15–30s: 2 streams
+    \item 30–45s: 3 streams
+    \item 45–60s: 1 stream
+\end{itemize}
+
+Each stream is identified by a unique \texttt{stream\_key} and processed independently through the same distributed pipeline. The worker nodes receive tasks from all streams interleaved and must process them within their capacity constraints.
+
+The purpose of this scenario is to evaluate how quickly and effectively the AIF and heuristic agents adapt to abrupt increases and decreases in demand. It also assesses the system’s ability to reconfigure quality parameters across multiple streams in parallel without violating SLOs.
+
+\subsection{Scenario C: Variable Computation Budget}
+\label{sec:evaluation-variable-budget}
+
+This scenario evaluates controller robustness under fluctuating compute resources. The system starts with two active workers, each with moderate compute capacity. At \( t = 20s \), one worker is deactivated, effectively halving the available compute budget. At \( t = 40s \), the worker is reactivated.
+
+This emulates a temporary node outage, network failure, or scheduled maintenance in a real-world edge deployment. The producer continues to generate tasks during the outage period, and the controller must react by reducing quality parameters to avoid SLO violations.
+
+This scenario evaluates the ability of the AIF agent to learn the new transition dynamics during the outage and to revert to a higher-quality configuration once resources are restored. The heuristic controller, by contrast, reacts only to observable SLO violations and does not model temporal dependencies.
+
