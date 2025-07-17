@@ -151,44 +151,40 @@ TODO: Figure depicting producer architecture
 \label{sec:evaluation-implementation-worker-architecture}
 Worker nodes form the computational core of the distributed pipeline. Their role is to execute inference tasks on data segments received from the producer and transmit the results to the collector. Each worker operates independently and adheres to a pull-based communication model, thereby ensuring a decentralized and scalable architecture.
 
-By design, workers remain without any mechanism to ``think'' for themselves and are entirely driven by the tasks they receive. These tasks include explicit instructions encoded in their \texttt{type} field—typically \texttt{INFERENCE}, \texttt{CHANGE}, or \texttt{END}, which define the worker's behavior without requiring global coordination.
+Crucially, workers do not maintain internal logic for deciding whether a parameter change is required. Instead, they execute the received task exactly as instructed. If a message with type \texttt{CHANGE} is received, the worker applies all changes listed in the message's metadata—such as switching the YOLOv11 model or updating FPS/resolution targets—and then resumes regular processing. This design simplifies the worker logic and ensures synchronization across the system with minimal overhead.
 
 TODO: Figure depicting worker architecture
 
 \subsection{Startup and Registration}
 Upon initialization, a worker registers with the producer using its unique identifier and receives the current stream configuration, including the active inference quality settings. The worker then initializes the YOLO models for future inference.
 
-\subsection{Three-Process Architecture}
+\subsection{3 Process Architecture}
 To support concurrent operations and avoid resource contention, each worker is structured into three pipelines, each implemented as an independent process. This modular design enables clean separation of responsibilities and optimizes throughput by decoupling I/O-bound and compute-bound operations.
 
+Most importantly, the use of three separate processes allows the worker to avoid bottlenecks caused by Python’s GIL and to exploit multicore CPUs effectively.
+
 \subsection{Work Requesting Pipeline.}
-This pipeline manages interaction with the producer and forwards received tasks for processing. It sends requests the producer using a ZeroMQ REQ socket to request more work. Each request contains metrics to support SLO monitoring, such as the most recent processing time.
+This pipeline manages interaction with the producer and forwards received tasks for processing. It sends requests to the producer using a ZeroMQ REQ socket to request work. 
 
-Received tasks are buffered until they are ready to be handed over to the \textit{task processing pipeline}. New work is requested whenever the task buffer is empty.
+Each time the worker requests a new task, it attaches its most recent processing time to the request. This metric is used by the producer to compute both global and per-worker SLOs. By making performance reporting part of the task request cycle, the system avoids the need for separate monitoring channels and maintains low overhead.
 
-If the producer facilitates a change in the worker's configuration and the worker receives a message with \texttt{type=CHANGE}, it immediately implements all changes detailed within the message.
+Received tasks are buffered until they are ready to be handed over to the \textit{processing pipeline}. New work is requested whenever the task buffer is empty. If the producer facilitates a change in the worker's configuration and the worker receives a message with \texttt{type=CHANGE}, it immediately implements all changes detailed within the message. For example, switching YOLOv11 model.
 
-\subsection{Task Processing Pipeline.}
-This process is dedicated to executing inference on received tasks. Upon receiving a task from the \textit{work requesting pipeline}:
-\begin{itemize}
-    \item If the task type is \texttt{INFERENCE}, the assigned YOLOv11 model is invoked to process the image data.
-    \item If the task type is \texttt{CHANGE}, the worker immediately applies all specified configuration changes. For example, switching from \texttt{YOLOv11m} to \texttt{YOLOv11s} triggers the reinitialization of the model with a new backbone architecture.
-\end{itemize}
-The pipeline also includes optional artificial capacity control to simulate heterogeneous edge devices and continuously tracks processing time using a moving average.
+\subsection{Processing Pipeline}
+This process is dedicated to executing inference on received tasks. Upon receiving a task from the \textit{work requesting pipeline} with \texttt{type=INFERENCE}, it processes the tasks by executing inference using the currently active YOLOv11 model. The result is then re-packaged into a new task with \texttt{type=COLLECT} and forwarded to the \textit{result sending pipeline}.
 
 \subsection{Result Sending Pipeline.}
-This pipeline handles the transmission of processed results to the collector. It includes:
-\begin{itemize}
-    \item \texttt{PipeResultReceiver}, which pulls results from the computation pipeline via a result pipe and queues them for transmission.
-    \item \texttt{ResultSender}, which sends results to the collector node using a ZeroMQ PUSH socket. It manages the connection lifecycle and ensures graceful shutdown on stream termination.
-\end{itemize}
-The data flow is structured as:
-\begin{center}
-\texttt{Result Pipe $\rightarrow$ PipeResultReceiver $\rightarrow$ Queue $\rightarrow$ ResultSender $\rightarrow$ Collector}
-\end{center}
-
+This pipeline handles the transmission of processed results to the collector. It receives results from the \textit{processing pipeline} and enqueues them for transmission. Once ready, the results are then pushed to the collector.
 
 \section{Collector Architecture}
+The collector node forms the terminal stage of the distributed pipeline. Its primary responsibility is to receive results from worker nodes, reconstruct the output stream in the correct order, and optionally render or store the final output. 
+
 TODO: Figure depicting collector architecture
 
+\subsection{Result reordering}
+The collector receives completed tasks from workers via a ZeroMQ PULL socket. Each task includes a unique \texttt{id} and a \texttt{stream\_key}, which together uniquely identify a specific frame within a logical stream. To maintain correct ordering, the collector uses a blocking dictionary that buffers out-of-order results until all preceding frames have arrived. If a task is delayed or lost—for example, due to a slow or faulty worker—it is dropped after a configurable timeout using a strike-based policy, thereby preserving the responsiveness of the system.
 
+\subsection{Support for Concurrent Streams}
+The architecture supports multiple concurrent data streams by tracking and assembling frames independently based on the \texttt{stream\_key} attribute. This is particularly important for the evaluation scenario involving changing workload, where multiple video streams are processed in parallel. Each stream is assigned its own logical ordering buffer, and the collector ensures that results from different streams do not interfere with one another.
+
+The problem of stream reordering under asynchronous and heterogeneous compute conditions is well known in distributed systems. Apache Flink, for example, uses watermarks and checkpoint barriers to achieve consistent stream processing under variable network and compute latencies~\cite{carbone_apache_2015}. The collector in this prototype adopts a simplified design that reflects these core principles while remaining lightweight and suitable for resource-constrained edge deployments.
