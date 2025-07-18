@@ -1,17 +1,24 @@
 \chapter{Discussion}
-\section{AIF on Worker, worker sends preferences to Producer}
-AIF auch auf dem Worker. Worker misst die Qualität seines outputs(frames). 
-Der Worker teilt seine preference für inference quality dem Producer mit. 
-Der Producer übernimmt die joint preferences von den workerm
+\section{Decentralized Inference Optimization: Active Inference on Worker Nodes}
+An interesting direction for future work involves deploying Active Inference (AIF) agents locally on worker nodes to optimize inference quality settings in a decentralized manner. While the current implementation centralizes control logic within the producer node, this approach could be extended by equipping workers with autonomous decision-making capabilities, particularly for optimizing their internal configurations.
 
-Welches problem Löst das? Beispeil:
-Worker läuft mit inference quality  5/10. Er hätte die ressourcen seine inference quality auf 6/10 zu erhöhen.
-Jedoch weis er durch kombination von momentanen messergebnissen und seinen vorherigen states (encoded im generative model), dass eine erhöhun gauf 6/10 infernce quality die qualität des outputs nicht verbessert und nur ressourcen verschwenden würde.
+Each worker would model the relationship between inference settings, such as YOLOv11 model variants (small, medium, large) and the quality of its local output (e.g., object detection accuracy, false positives). Using the AIF framework, the worker would learn a generative model that encodes how different inference configurations affect the output quality under varying input conditions.
 
-\section{very slow worker nodes}
-The load balancing design pattern maximizes the resource usage in heterogeneous workers. But it doesnt resolve the issue of extremely slow worker nodes. When a worker is below a certain threshold for processing a single \textbf{task}, then this tasks may not be used in the resulting output. This is because by the time the slow worker is done processing its tasks, the output-stream has already moved past this point. Meaning that the work done by the node is essential useless.
+In practice, this could reveal scenarios where a lightweight YOLOv11 model yields near-identical detection accuracy compared to a heavier model, despite significantly reduced resource consumption. Such insights are task- and input-dependent and may vary over time. For instance, under good lighting conditions or in scenes with low visual complexity, a small model may perform adequately. Conversely, more complex or noisy inputs may require higher-capacity models.
 
-For example:
-If we have video-stream running at 30fps, this means that there has to be a new frame every \(33\text{ms}\). If the delay between the source-stream and the output-stream is \(1\text{s}\), then a worker has at most \(1\text{s}\) for processing a single task. If the worker is unable to processes the requested task within this time frame, then the result-task will discarded by the collector as it is ''behind'' the current stream, i.e., the most recent task that has reached output has a higher id then the task that was submitted by the slow worker node. This results in lost information, e.g, dropped frames for a video stream and the computational power of the slow worker node is wasted.
+Once the local AIF agent infers its preferred configuration, it communicates this preference to the producer. The producer aggregates preferences from all worker nodes and selects a globally consistent configuration that satisfies the preferences while upholding global resource constraints and Service Level Objectives (SLOs). This architecture enables dynamic adaptation not only at the stream level but also at the granularity of individual worker nodes, potentially improving overall resource efficiency and detection performance.
 
-To combat this, we implemented the SLO \textit{Average Task Processing Time per worker}, meaning if a single worker is too slow, then the stream parameter configuration is changed. This comes with the downside that when a single worker is way slower than the other workers, it might drag down the QoE of the entire system.
+This introduces the potential for hierarchical active inference architectures, where local beliefs influence global decision-making. However, such a distributed control model also raises challenges in preference aggregation, conflict resolution, and communication overhead, which merit further investigation.
+
+
+\section{Impact of Slow Worker Nodes on Stream Integrity}
+
+While the load balancing strategy employed in this system ensures effective utilization of heterogeneous resources, it does not fully mitigate the detrimental effects of extremely slow worker nodes. In particular, a critical failure mode arises when a worker is consistently unable to process tasks within the temporal bounds defined by the stream's latency constraints.
+
+Consider a video stream operating at 30 FPS, which implies that a new frame is produced every \(33\,\text{ms}\). If the system tolerates an end-to-end delay of \(1\,\text{s}\), then each worker has at most \(1\,\text{s}\) to complete the processing of an individual task. When a worker exceeds this time budget, the result of its computation is rendered obsolete by the time it reaches the collector. Specifically, if the processed task arrives with a lower task identifier than the most recently aggregated frame, it will be discarded by the collector to maintain temporal consistency in the output stream.
+
+This scenario leads to two significant issues: (1) a loss of information, as frames from the original stream are effectively dropped, and (2) wasted computational effort, as the processing resources of the slow worker node contribute no value to the final output. Both effects degrade the overall Quality of Experience (QoE) of the system and reduce processing efficiency.
+
+To address this problem, the system enforces a Service Level Objective (SLO) based on the \textit{Highest Per-Worker Average Task Processing Time}. This metric is continuously monitored, and if a worker's processing time exceeds a predefined threshold, the producer dynamically reconfigures the stream parameters (e.g., reducing resolution or FPS) to reduce the computational load. 
+
+However, this solution introduces a trade-off: when a single underperforming node fails to keep pace, it may trigger a global quality degradation affecting all workers. Consequently, the QoE of the entire system is diminished due to the limitations of one component. This illustrates the importance of developing more refined mitigation strategies, such as selectively excluding persistently underperforming workers or incorporating adaptive deadlines that allow for differentiated task discarding thresholds.
