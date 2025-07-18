@@ -124,8 +124,15 @@
 %\end{kurzfassung}
 
 \begin{abstract}
-\todo{Enter your text here.}
+This thesis explores how the Active Inference (AIF) framework can be employed to uphold Service Level Objectives (SLOs) in resource-constrained edge computing environments. A novel distributed stream processing pipeline is designed and implemented, enabling real-time video inference across parallel worker nodes. Elasticity is expressed through dynamic adjustment of three stream quality parameters: frame rate, resolution, and model complexity.
+
+An AIF agent deployed at the producer node continuously monitors the system state and minimizes expected free energy to select actions that reduce the risk of future SLO violations. Online learning is achieved through runtime updates to the agent's generative model. SLOs—such as task queue size, processing latency, and memory usage—are encoded as prior preferences, allowing the agent to balance constraint satisfaction with stream quality maximization.
+
+The prototype is evaluated against a heuristic baseline across three scenarios: a static environment, dynamic demand variation, and fluctuating computational budget. Results show that the AIF agent outperforms the baseline in stable and moderately dynamic environments, maintaining higher global SLO satisfaction and more stable configurations. However, performance degrades under highly volatile workloads due to limited reactivity. This highlights the need for future extensions supporting faster re-adaptation and distributed control across multiple nodes.
+
+Overall, this work presents a principled method for elastic, self-adaptive control in edge systems. By integrating probabilistic reasoning, preference-driven adaptation, and online model learning, Active Inference provides a unified control paradigm for resilient stream processing under uncertainty.
 \end{abstract}
+
 
 % Select the language of the thesis, e.g., english or naustrian.
 \selectlanguage{english}
