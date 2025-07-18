@@ -55,12 +55,7 @@ This configuration provides sufficient headroom for parallel task execution and 
 
 This scenario evaluates agents' behavior in a stable and controlled environment. It serves as the baseline to assess the steady-state behavior of both agents. The goal is to analyze convergence behavior, control stability, and SLO compliance in the absence of external perturbations.
 
-The experiment is conducted using three worker nodes, each assigned a fixed computational capacity:
-\begin{itemize}
-    \item Worker 1: 60\% of full capacity
-    \item Worker 2: 50\% of full capacity
-    \item Worker 3: 40\% of full capacity
-\end{itemize}
+The experiment is conducted using three worker nodes, each assigned a fixed computational capacity of 60\%, 50\%, and 40\%, respectively
 
 These normalized capacity values simulate processing slowdowns by artificially extending inference time. The capacities are deliberately unequal to reflect the heterogeneity typical of real-world edge environments, where nodes differ in hardware capabilities, energy budgets, or concurrent workloads.
 
@@ -72,10 +67,10 @@ A single video stream is processed at a constant source frame rate. At the begin
 This scenario simulates a dynamic workload by varying the number of concurrent video streams during runtime. Three workers are assigned fixed computational capacities of 80\%, 75\%, and 70\%, respectively. The producer initiates multiple streams during a certain stream multiplier schedule, at key points during the runtime:
 
 \begin{itemize}
-    \item 0\%–25\%: 1 stream
-    \item 25\%–50\%: 3 streams
-    \item 50\%–75\%: 2 streams
-    \item 75\%–100\%: 1 stream
+    \item 0\%–-25\%: 1 stream
+    \item 25\%-–50\%: 3 streams
+    \item 50\%–-75\%: 2 streams
+    \item 75\%–-100\%: 1 stream
 \end{itemize}
 
 Each stream is identified by a unique \texttt{stream\_key} and processed independently through the same distributed pipeline. The worker nodes receive tasks from all streams interleaved and must process them within their capacity constraints.
@@ -143,29 +138,29 @@ An overview of the metrics is provided in table~\ref{tab:results_summary}.
 
 
 
-\subsection{Base Case: Stable Computational Budget and Demand}
+\subsection{Scenario A: Base Case}
 
-In the base case scenario, the AIF agent outperformed the heuristic agent on all relevant SLO metrics. It achieved a \textbf{percentage of full SLO satisfaction of 98.2\%}, compared to \textbf{95.59\%} for the heuristic---a relative improvement of \textbf{+2.73\%}. Similarly, the \textbf{average SLO fulfillment rate} increased from \textbf{98.71\%} to \textbf{99.38\%}, and the \textbf{average overall stream quality score} improved from \textbf{0.7577} to \textbf{0.8007}, a relative increase of \textbf{+5.68%}.
+In the base case scenario, the AIF agent outperformed the heuristic agent on all relevant SLO metrics. It achieved a \textbf{full SLO satisfaction} of \(98.2\%\), compared to \(95.59\%\) for the heuristic---a relative improvement of \(+2.73\%\). Similarly, the \textbf{average SLO fulfillment rate} increased from \(98.71\%\) to \(99.38\%\), and the \textbf{average overall stream quality score} improved from \(0.7577\) to \(0.8007\), a relative increase of \(+5.68\%\).
 
-Despite slightly longer maximum violation durations (AIF: 16 timesteps, Heuristic: 14), a relative increase of \textbf{+14.29\%}, the AIF agent demonstrated better convergence behavior, reaching a stable configuration in just \textbf{1.0 timestep}, which is \textbf{+14.29\%} longer than the heuristic baseline. This supports the observation that the AIF agent front-loads exploratory adaptation and quickly stabilizes its belief about optimal stream parameters.
+Despite slightly longer maximum violation durations (AIF: 16 timesteps, Heuristic: 14), a relative increase of \(+14.29\%\), the AIF agent demonstrated better convergence behavior, reaching a stable configuration in just \(1 \text{timestep}\) on average, which is \(+14.29\%\) longer than the heuristic baseline. This supports the observation that the AIF agent front-loads exploratory adaptation and quickly stabilizes its belief about optimal stream parameters.
 
 The improved performance is due to the agent’s epistemic behavior: once a satisfactory configuration is learned, the agent avoids further changes unless necessary. The heuristic, by contrast, continues to greedily exploit temporary resource availability, leading to greater parameter fluctuation and less consistent global performance.
 
-\subsection{Variable Computational Budget}
+\subsection{Scenario B: Variable Computational Demand}
 
-In this more dynamic setting, where the available computational resources change over time, the AIF agent maintained high performance. It achieved \textbf{96.15\%} simultaneous SLO satisfaction compared to \textbf{88.43\%} for the heuristic---a \textbf{+7.72\%} advantage. The \textbf{average SLO fulfillment rate} also improved from \textbf{96.75\%} to \textbf{98.27\%}.
+This scenario presented the most challenging environment: the computational demand increased significantly as the number of concurrent streams tripled. Here, the heuristic agent achieved better SLO metrics, with \(85.18\%\) simultaneous SLO satisfaction versus \(71.26\%\) for the AIF agent---a \(-13.92\%\) difference.
 
-However, the cost of the AIF agent’s equilibrium-seeking behavior is visible in the \textbf{maximum consecutive SLO violation streak}, which rose from \textbf{18} (heuristic) to \textbf{31} (AIF), a \textbf{+72.22\%} increase. This indicates a slower recovery from extreme events where resource availability drops sharply. Nevertheless, once recovery occurs, the AIF agent stabilizes more effectively and avoids repeated violations.
+The \textbf{average SLO fulfillment rate} followed a similar pattern: \(94.88\%\) for the heuristic versus \(90.73\%\) for AIF. However, this apparent advantage comes at a cost. The \textbf{maximum SLO violation duration} for the AIF agent was \(259\text{timesteps}\), which is \(+280.88\%\) higher than the heuristic’s \(68\text{timesteps}\), revealing poor responsiveness to abrupt environmental change.
 
-The \textbf{stream quality score} for the AIF agent decreased to \textbf{0.6077}, compared to \textbf{0.7541} for the heuristic, a drop of \textbf{--19.40\%}. This is a direct consequence of the AIF agent favoring SLO compliance over QoE maximization when resource constraints are tight.
+Despite the inferior SLO metrics, the AIF agent maintained a relatively high \textbf{stream quality score} of \(0.7663\), which is only \(-6.73\%\) lower than the heuristic’s \(0.8216\). This highlights that the AIF agent, once it begins adaptation, avoids unnecessary quality degradation and maintains equilibrium once learned.
 
-\subsection{Variable Computational Demand}
+\subsection{Scenario C: Variable Computational Budget}
 
-This scenario presented the most challenging environment: the computational demand increased significantly as the number of concurrent streams tripled. Here, the heuristic agent achieved better SLO metrics, with \textbf{85.18\%} simultaneous SLO satisfaction versus \textbf{71.26\%} for the AIF agent---a \textbf{--13.92\%} difference.
+In this more dynamic setting, where the available computational resources change over time, the AIF agent maintained high performance. It achieved \(\textbf{96.15}\%\) simultaneous SLO satisfaction compared to \(88.43\%\) for the heuristic---a \(+7.72\%\) advantage. The \textbf{average SLO fulfillment rate} also improved from \(96.75\%\) to \(98.27\%\).
 
-The \textbf{average SLO fulfillment rate} followed a similar pattern: \textbf{94.88\%} for the heuristic versus \textbf{90.73\%} for AIF. However, this apparent advantage comes at a cost. The \textbf{maximum SLO violation duration} for the AIF agent was \textbf{259 timesteps}, which is \textbf{+280.88\%} higher than the heuristic’s \textbf{68 timesteps}, revealing poor responsiveness to abrupt environmental change.
+However, the cost of the AIF agent’s equilibrium-seeking behavior is visible in the \textbf{maximum consecutive SLO violation streak}, which rose from \(18\) (heuristic) to \(31\) (AIF), a \(+72.22\%\) increase. This indicates a slower recovery from extreme events where resource availability drops sharply. Nevertheless, once recovery occurs, the AIF agent stabilizes more effectively and avoids repeated violations.
 
-Despite the inferior SLO metrics, the AIF agent maintained a relatively high \textbf{stream quality score} of \textbf{0.7663}, which is only \textbf{--6.7\3\%} lower than the heuristic’s \textbf{0.8216}. This highlights that the AIF agent, once it begins adaptation, avoids unnecessary quality degradation and maintains equilibrium once learned.
+The \textbf{stream quality score} for the AIF agent decreased to \(0.6077\), compared to \(0.7541\) for the heuristic, a drop of \(-19.40\%\). This is a direct consequence of the AIF agent favoring SLO compliance over QoE maximization when resource constraints are tight.
 
 \subsection{Temporal Adaptation Analysis}
 
@@ -180,6 +175,3 @@ The AIF agent’s superior performance in stable and moderately dynamic environm
 The heuristic controller lacks this capability for uncertainty modeling and acts purely on observed feedback. While this allows for aggressive optimization under predictable load, it fails under volatile or ambiguous conditions.
 
 In highly dynamic environments, particularly with rapid changes in computational demand, the AIF agent’s preference for prior beliefs results in sluggish adaptation. Without online model updates, the agent fails to adapt quickly to new workload regimes, highlighting a key area for future improvement.
-
-
-\subs

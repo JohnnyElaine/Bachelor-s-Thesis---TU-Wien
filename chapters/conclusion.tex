@@ -1,2 +1,14 @@
 \chapter{Conclusion}
+\label{chap:conclusion}
+
+This thesis investigated the application of the Active Inference (AIF) framework for upholding Service Level Objectives (SLOs) in distributed edge computing scenarios. A self-adaptive stream processing pipeline was developed, leveraging AIF to regulate elasticity along three dimensions: frame rate, resolution, and model quality. The objective was to maintain high Quality of Experience (QoE) while operating under resource constraints.
+
+The implemented prototype integrates an AIF agent at the producer node. By minimizing expected free energy, the agent continuously selects actions that reduce the risk of future SLO violations. Online learning through parameter updates enables the agent to adapt its generative model during runtime, facilitating behavior adjustment without requiring offline retraining.
+
+Experimental evaluation showed that AIF-based elasticity outperforms a heuristic baseline in maintaining global SLO compliance under variable computational demand. The agent effectively balances competing objectives such as task queue size, inference delay, and model accuracy.
+
 The Active Inference agent demonstrates clear advantages in environments with stable or moderately dynamic characteristics, outperforming the heuristic agent in global SLO satisfaction and stability. Its preference for equilibrium and minimal reconfiguration makes it well-suited for maintaining long-term QoE and SLO compliance. However, its performance degrades significantly in highly volatile environments with sudden shifts in demand. This identifies a critical limitation of the current implementation: lack of fast re-adaptation mechanisms. Future work should investigate strategies for incorporating online model updates to improve reactivity under such conditions.
+
+While the evaluation focused on video inference, the presented approach generalizes to other data modalities, such as LIDAR, audio streams, and sensor telemetry. 
+
+In summary, this thesis contributes a principled and extensible method for adaptive control in edge computing. By unifying probabilistic reasoning, preference-driven adaptation, and online learning, the proposed system provides a novel foundation for resilient, self-organizing stream processing under uncertainty.

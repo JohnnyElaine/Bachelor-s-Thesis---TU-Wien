@@ -1,0 +1,275 @@
+\appendix
+\chapter{Simulation Results}
+
+This appendix provides the detailed results for all evaluation scenarios. For each simulation, we present:
+\begin{itemize}
+    \item Key performance metrics in tabular form
+    \item Visualizations of stream quality, SLO values, and task distribution
+\end{itemize}
+
+\section{Scenario A: Base Case}
+
+\subsection*{Active Inference Agent}
+\begin{table}[h]
+\centering
+\caption{Base Case – Active Inference}
+\label{tab:base_active_inference}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Total Simulation Timesteps & 887 \\
+\% Time All SLOs Met & 0.9820 \\
+Average SLO Fulfillment Rate & 0.9938 \\
+Average Overall Stream Quality Score & 0.8007 \\
+Max Consecutive SLO Violations & 16 \\
+Time to Reach Stable Configuration & 1.0000 \\
+Queue Size SLO Fulfillment Rate & 1.0000 \\
+Memory Usage SLO Fulfillment Rate & 1.0000 \\
+Global Processing Time SLO Fulfillment Rate & 0.9820 \\
+Worker Processing Time SLO Fulfillment Rate & 0.9932 \\
+Queue Size Violation Severity (Avg) & 0.0000 \\
+Worker Proc. Time Violation Severity (Avg) & 4.2630 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection*{Heuristic Agent}
+\begin{table}[h]
+\centering
+\caption{Base Case – Heuristic}
+\label{tab:base_heuristic}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Total Simulation Timesteps & 908 \\
+\% Time All SLOs Met & 0.9559 \\
+Average SLO Fulfillment Rate & 0.9871 \\
+Average Overall Stream Quality Score & 0.7577 \\
+Max Consecutive SLO Violations & 14 \\
+Time to Reach Stable Configuration & 0.8750 \\
+Queue Size SLO Fulfillment Rate & 1.0000 \\
+Memory Usage SLO Fulfillment Rate & 1.0000 \\
+Global Processing Time SLO Fulfillment Rate & 0.9559 \\
+Worker Processing Time SLO Fulfillment Rate & 0.9923 \\
+Queue Size Violation Severity (Avg) & 0.0000 \\
+Worker Proc. Time Violation Severity (Avg) & 1.8004 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection*{Plots}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/basic_sim/active_inference_relative_control_quality_metrics.png}
+    \caption{AIF – Quality Metrics Over Time (Base Case)}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/basic_sim/active_inference_relative_control_quality_metrics.png}
+    \caption{AIF – Quality Metrics Over Time (Base Case)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/basic_sim/active_inference_relative_control_slo_values.png}
+    \caption{AIF – SLO Metrics Over Time (Base Case)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/results/basic_sim/active_inference_relative_control_task_distribution_pie.png}
+    \caption{AIF – Task Distribution (Base Case)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/basic_sim/heuristic_quality_metrics.png}
+    \caption{Heuristic – Quality Metrics Over Time (Base Case)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/basic_sim/heuristic_slo_values.png}
+    \caption{Heuristic – SLO Metrics Over Time (Base Case)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/results/basic_sim/heuristic_task_distribution_pie.png}
+    \caption{Heuristic – Task Distribution (Base Case)}
+\end{figure}
+
+\clearpage
+\section{Scenario B: Variable Computational Demand}
+
+\subsection*{Active Inference Agent}
+\begin{table}[h]
+\centering
+\caption{Demand – Active Inference}
+\label{tab:demand_active_inference}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Total Simulation Timesteps & 922 \\
+\% Time All SLOs Met & 0.7126 \\
+Average SLO Fulfillment Rate & 0.9073 \\
+Average Overall Stream Quality Score & 0.7663 \\
+Max Consecutive SLO Violations & 259 \\
+Time to Reach Stable Configuration & 1.0000 \\
+Queue Size SLO Fulfillment Rate & 0.7191 \\
+Memory Usage SLO Fulfillment Rate & 1.0000 \\
+Global Processing Time SLO Fulfillment Rate & 0.9154 \\
+Worker Processing Time SLO Fulfillment Rate & 0.9946 \\
+Queue Size Violation Severity (Avg) & 1.3123 \\
+Worker Proc. Time Violation Severity (Avg) & 1.9074 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection*{Heuristic Agent}
+\begin{table}[h]
+\centering
+\caption{Demand – Heuristic}
+\label{tab:demand_heuristic}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Total Simulation Timesteps & 992 \\
+\% Time All SLOs Met & 0.8518 \\
+Average SLO Fulfillment Rate & 0.9488 \\
+Average Overall Stream Quality Score & 0.8216 \\
+Max Consecutive SLO Violations & 68 \\
+Time to Reach Stable Configuration & 0.9697 \\
+Queue Size SLO Fulfillment Rate & 0.8821 \\
+Memory Usage SLO Fulfillment Rate & 1.0000 \\
+Global Processing Time SLO Fulfillment Rate & 0.9163 \\
+Worker Processing Time SLO Fulfillment Rate & 0.9970 \\
+Queue Size Violation Severity (Avg) & 0.9526 \\
+Worker Proc. Time Violation Severity (Avg) & 0.5446 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection*{Plots}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/variable_computational_demand_sim/active_inference_relative_control_quality_metrics.png}
+    \caption{AIF – Quality Metrics Over Time (Demand)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/variable_computational_demand_sim/active_inference_relative_control_slo_values.png}
+    \caption{AIF – SLO Metrics Over Time (Demand)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/results/variable_computational_demand_sim/active_inference_relative_control_task_distribution_pie.png}
+    \caption{AIF – Task Distribution (Demand)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/variable_computational_demand_sim/heuristic_quality_metrics.png}
+    \caption{Heuristic – Quality Metrics Over Time (Demand)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/variable_computational_demand_sim/heuristic_slo_values.png}
+    \caption{Heuristic – SLO Metrics Over Time (Demand)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/results/variable_computational_demand_sim/heuristic_task_distribution_pie.png}
+    \caption{Heuristic – Task Distribution (Demand)}
+\end{figure}
+
+\clearpage
+\section{Scenario C: Variable Computational Budget}
+
+\subsection*{Active Inference Agent}
+\begin{table}[h]
+\centering
+\caption{Budget – Active Inference}
+\label{tab:budget_active_inference}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Total Simulation Timesteps & 884 \\
+\% Time All SLOs Met & 0.9615 \\
+Average SLO Fulfillment Rate & 0.9827 \\
+Average Overall Stream Quality Score & 0.6077 \\
+Max Consecutive SLO Violations & 31 \\
+Time to Reach Stable Configuration & 1.0000 \\
+Queue Size SLO Fulfillment Rate & 0.9717 \\
+Memory Usage SLO Fulfillment Rate & 1.0000 \\
+Global Processing Time SLO Fulfillment Rate & 0.9638 \\
+Worker Processing Time SLO Fulfillment Rate & 0.9955 \\
+Queue Size Violation Severity (Avg) & 0.3963 \\
+Worker Proc. Time Violation Severity (Avg) & 2.1070 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection*{Heuristic Agent}
+\begin{table}[h]
+\centering
+\caption{Budget – Heuristic}
+\label{tab:budget_heuristic}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Total Simulation Timesteps & 916 \\
+\% Time All SLOs Met & 0.8843 \\
+Average SLO Fulfillment Rate & 0.9675 \\
+Average Overall Stream Quality Score & 0.7541 \\
+Max Consecutive SLO Violations & 18 \\
+Time to Reach Stable Configuration & 0.9412 \\
+Queue Size SLO Fulfillment Rate & 0.9891 \\
+Memory Usage SLO Fulfillment Rate & 1.0000 \\
+Global Processing Time SLO Fulfillment Rate & 0.8854 \\
+Worker Processing Time SLO Fulfillment Rate & 0.9956 \\
+Queue Size Violation Severity (Avg) & 0.2418 \\
+Worker Proc. Time Violation Severity (Avg) & 1.0020 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection*{Plots}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/variable_computational_budget_sim/active_inference_relative_control_quality_metrics.png}
+    \caption{AIF – Quality Metrics Over Time (Budget)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/variable_computational_budget_sim/active_inference_relative_control_slo_values.png}
+    \caption{AIF – SLO Metrics Over Time (Budget)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/results/variable_computational_budget_sim/active_inference_relative_control_task_distribution_pie.png}
+    \caption{AIF – Task Distribution (Budget)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/variable_computational_budget_sim/heuristic_quality_metrics.png}
+    \caption{Heuristic – Quality Metrics Over Time (Budget)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{img/results/variable_computational_budget_sim/heuristic_slo_values.png}
+    \caption{Heuristic – SLO Metrics Over Time (Budget)}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/results/variable_computational_budget_sim/heuristic_task_distribution_pie.png}
+    \caption{Heuristic – Task Distribution (Budget)}
+\end{figure}

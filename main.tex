@@ -137,18 +137,18 @@
 \mainmatter
 
 % link to chapters
-\input{chapters/introduction}
-\input{chapters/background}
-\input{chapters/related_work}
-\input{chapters/methodology}
-\input{chapters/implementation}
-\input{chapters/evaluation}
-\input{chapters/discussion}
-\input{chapters/conclusion}
+\include{chapters/introduction}
+\include{chapters/background}
+\include{chapters/related_work}
+\include{chapters/methodology}
+\include{chapters/implementation}
+\include{chapters/evaluation}
+\include{chapters/discussion}
+\include{chapters/conclusion}
 
 
 % Remove following line for the final thesis.
-\input{intro.tex} % A short introduction to LaTeX.
+%\input{intro.tex} % A short introduction to LaTeX.
 
 \backmatter
 
@@ -178,5 +178,8 @@
 % Add a bibliography.
 \bibliographystyle{ieeetr}
 \bibliography{bib}
+
+\appendix
+\include{appendix/simulation_results}
 
 \end{document}

@@ -11,6 +11,7 @@ This modular separation enables horizontal scalability and encapsulation of conc
 
 Figure \ref{fig:parallel-distributed-pipeline} provides a high-level overview of the design.
 
+
 \subsection{Task Distribution and Load Balancing}
 Tasks are distributed in a decentralized fashion: each worker node actively requests tasks when ready to compute, forming a pull-based load balancing model. This mechanism enables the system to scale to a large number of workers without requiring global synchronization. This load-balancing pattern emerges naturally as faster or less burdened nodes consume more tasks \cite{estrada_comparing_2015}.
 
