@@ -131,7 +131,7 @@ To adapt to non-stationary runtime conditions, the agent continuously refines it
 
 \begin{itemize}
   \item \texttt{agent.update\_A(\(o_t\)):} Updates the observation model \( P(o \mid s) \) using the newly observed data.
-  \item \texttt{agent.update\_B(\(Q(s_{t-1})\)):} Updates the transition model \( P(s_{t+1} \mid s_t, a_t) \) based on the posterior belief \(Q(s_{t})\) from the previous timestep.
+  \item \texttt{agent.update\_B(\(Q(s_t)\)):} Updates the transition model \( P(s_{t+1} \mid s_t, a_t) \) based on the posterior belief \(Q(s_{t})\) from the previous timestep.
 \end{itemize}
 
 This learning mechanism allows the agent to gradually internalize the causal structure of the environment, e.g., how a reduction in resolution affects memory usage or how inference quality relates to task processing time. As a result, the agent becomes increasingly adept at selecting configurations that uphold SLOs under varying conditions.
