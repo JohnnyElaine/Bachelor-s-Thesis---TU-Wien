@@ -1,12 +1,13 @@
 \chapter{Introduction}
 
-\section{Motivation}
 The rapid growth of Internet of Things (IoT) devices, mobile computing applications, and real-time sensor networks has led to an exponential increase in data streams generated at the edge of the network. As a consequence, edge computing has emerged as a distributed paradigm, wherein processing and decision-making are performed as close as possible to data sources \cite{deng_edge_2020}. The core promise of edge computing lies in its capacity to
 reduce latency, enhance privacy, save bandwidth, and improve responsiveness by processing data closer to the sources of generation \cite{deng_edge_2020}. 
 
 However, edge computing introduces its own set of challenges. Unlike the virtually
 elastic resources of centralized data centers, edge devices are highly heterogeneous \cite{furst_elastic_2018},
-resource-constrained in terms of compute, memory, and energy availability and operate in unpredictable environments \cite{sedlak_active_2024, danilenka_adaptive_2025}. This complexity is exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. The ability to provide high-quality service under such conditions is critically dependent on the capacity to monitor, predict, and enforce Service Level Objectives (SLOs)—quantitative targets, such as latency, throughput, and resource utilization \cite{sedlak_diffusing_2024, nastic_sloc_2020}. 
+resource-constrained in terms of compute, memory, and energy availability and operate in unpredictable environments \cite{sedlak_active_2024, danilenka_adaptive_2025}. This complexity is exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. The ability to provide high-quality service under such conditions is critically dependent on the capacity to monitor, predict, and enforce Service Level Objectives (SLOs) -- quantitative targets, such as latency, throughput, and resource utilization \cite{sedlak_diffusing_2024, nastic_sloc_2020}. 
+
+Traditional elasticity mechanisms and autoscaling frameworks address these challenges by scaling system resources. While effective in centralized cloud environments with abundant resources, such strategies become impractical in edge computing, where additional computational capacity often cannot be provisioned dynamically. Instead, the focus must shift toward scaling the stream processing services themselves. Inspired by Sedlak et al.  Inspired by Sedlak et al. \cite{sedlak_towards_2025}, this thesis adopts a multi-dimensional elasticity approach that adapts the quality and processing standards of the data stream, rather than the underlying infrastructure.
 
 Ensuring SLO compliance in these environments is an unsolved problem. The necessity of elasticity—that is, dynamically scaling application parameters or resources in response to workload fluctuations and SLO states—demands new control paradigms that are both data-driven and interpretable \cite{lapkovskis_benchmarking_2025, dias_de_assuncao_distributed_2018}.
 

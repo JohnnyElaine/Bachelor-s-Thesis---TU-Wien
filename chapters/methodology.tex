@@ -11,6 +11,13 @@ This modular separation enables horizontal scalability and encapsulation of conc
 
 Figure \ref{fig:parallel-distributed-pipeline} provides a high-level overview of the design.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/methodology_parallel_pipeline_overview.drawio.pdf}
+    \caption{Overview of system architecture}
+    \label{fig:parallel-distributed-pipeline}
+\end{figure}
+
 
 \subsection{Task Distribution and Load Balancing}
 Tasks are distributed in a decentralized fashion: each worker node actively requests tasks when ready to compute, forming a pull-based load balancing model. This mechanism enables the system to scale to a large number of workers without requiring global synchronization. This load-balancing pattern emerges naturally as faster or less burdened nodes consume more tasks \cite{estrada_comparing_2015}.
@@ -21,8 +28,6 @@ While such an architecture increases communication overhead, as the worker node 
 All communication between components is asynchronous. Producers dispatch tasks without blocking \cite{lauener_how_2018}; workers process and return results independently; and collectors operate on incoming data streams without waiting on global completion barriers.
 
 This asynchronous design supports robustness under dynamic conditions, such as fluctuating task loads or varying network bandwidth \cite{nguyen_octopinf_2025}. This non-blocking operation is critical for real-time scenarios in which latency constraints must be maintained regardless of individual node performance fluctuations.
-
-\todo{Bild von der Pipeline einfügen}
 
 \section{Service Level Objectives for Resource Management}
 Each SLO defines a desired operational range for a specific performance metric. They are represented as bounded variables whose values must remain within a target range to ensure system stability.
@@ -63,9 +68,6 @@ The Producer operates as the central controller of stream parameterization. The 
     \item \textbf{Task generation:} Stream parameters that directly affect the generation of tasks are changed directly at the producer level. The configuration then affects all newly generated tasks.
     \item \textbf{Task processing:} Stream parameters that affect large changes on the worker, such as switching inference quality, require coordination between producer and worker. When the producer dictates a change, it enqueues a control task, detailing the nature of the change, in the \textit{backlog}\label{def:backlog} of each worker. The next time a worker requests a task from the producer, it receives the control tasks and makes the described changes, before continuing with normal stream processing. This ensures synchronized configuration among workers.
 \end{itemize}
-\todo{Bild welches YOLO model change zeigt + Backlog}
-
-
 
 \section{Active Inference-Based Elasticity Control}
 The system exposes control of the \textit{stream quality parameters} to the AIF agent.
@@ -85,7 +87,7 @@ Crucially, the SLOs and \textit{stream quality parameters} are encoded as prior 
 The relationship between configuration and SLO fulfillment is non-linear. Therefore, the system must learn which configurations fulfill SLOs under which conditions, and which trade-offs are most efficient \cite{sedlak_towards_2025}.
 
 \subsection{Continous Observation and Configuration Adjustment}
-The AIF loop~\ref{sec:active-inference-loop} is executed periodically during the producer's runtime to evaluate and adapt the system's configuration. Finding an appropriate interval between evaluations is critical, as it determines how frequently the agent can revise and apply its control policy. Short intervals (e.g., 50\,ms) allow rapid responsiveness but risk instability. Actions may be issued faster than their causal effects can propagate through the system, leading to overcompensation or oscillatory behavior. This is especially problematic in stream processing pipelines where SLO-relevant variables such as memory usage evolve with delay. Conversely, overly long intervals (e.g., 20\,s) hinder the system’s ability to respond to rapid environmental changes, potentially causing SLO violations due to latency in corrective actions. 
+The AIF loop~\ref{sec:active-inference-loop} is executed periodically during the producer's runtime to evaluate and adapt the system's configuration. Finding an appropriate interval between evaluations is critical, as it determines how frequently the agent can revise and apply its control policy. Short intervals (e.g., 50\,ms) allow rapid responsiveness but risk instability. Actions may be issued faster than their causal effects can propagate through the system, leading to overcompensation or oscillatory behavior. This is especially problematic in stream processing pipelines where SLO-relevant variables such as memory usage evolve with delay. Conversely, overly long intervals (e.g., 5\,s) hinder the system’s ability to respond to rapid environmental changes, potentially causing SLO violations due to latency in corrective actions. The implementation in chapter~\ref{chap:implementation} executes an action-perception cycle every 500\,ms.
 
 \subsubsection{Active Inference Loop}
 Each iteration of the loop involves a three-step procedure: observation, state and policy inference, and action sampling.

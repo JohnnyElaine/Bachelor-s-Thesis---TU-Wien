@@ -21,8 +21,6 @@ Communication is fully asynchronous and implemented using ZeroMQ sockets~\cite{n
 ZeroMQ sockets are multiplexed using event loops, allowing simultaneous listening and sending. Task payloads (NumPy arrays) are transmitted as raw binary data without any copying, by leveraging the buffer interface they implement. Task metadata is serialized using msgpack \cite{noauthor_msgpackmsgpack-python_nodate} for compact binary transport.
 
 
-TODO: Figure of the overall system architecture
-
 \section{Producer Architecture}
 The producer fulfills three roles: task generation, elasticity control, and agent orchestration.
 
@@ -80,7 +78,27 @@ Violations of this SLO indicate that the aggregate compute capacity of the syste
 
 Here, \(\varepsilon_\text{worker} \geq 1\) provides additional tolerance compared to the global SLO. A typical setting is \(\varepsilon_\text{worker} = 4\), allowing slower nodes to process a task in up to 4 times the time budget permitted by the frame rate. By ensuring that even the slowest node performs within tolerable bounds, the system can maintain temporal coherence and avoid dropping results from late workers.
 
-TODO: explain 3 SLO states (OK, WARNING, CRITICAL)
+\subsection{SLO State Discretization}
+To enable discrete decision-making within the Active Inference controller, the continuous \textit{SLO value} is transformed into one of three discrete SLO states:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{@{}lll@{}}
+        \toprule
+        \textbf{SLO State} & \textbf{SLO Value} & \textbf{Description} \\
+        \midrule
+        OK        & \( x < 0.8 \)                          & Constraint is comfortably fulfilled \\
+        WARNING   & \( 0.8 \leq x \leq 1.0 \)             & Constraint is nearing violation     \\
+        CRITICAL  & \( x > 1.0 \)                         & Constraint is violated              \\
+        \bottomrule
+    \end{tabular}
+    \caption{Discretization of SLO values into discrete system states.}
+    \label{tab:slo-states}
+\end{table}
+
+
+This ternary discretization introduces a minimal yet effective abstraction over the continuous SLO domain. It enables the Active Inference agent to reason over discrete system states when selecting actions. OK states reflect a healthy operating condition; WARNING states indicate a need for caution and CRITICAL states signal a SLO violation.
+
 
 \subsection{Elasticity and Stream Parameter Control}
 The \textit{Producer} serves as the central control entity for elasticity. It continuously monitors and adjusts three key \textit{quality parameters} of the video stream: (1) frames per second (\textit{fps}), (2) \textit{resolution}, and (3) \textit{inference quality}. While the producer directly sets fps and resolution by modulating task generation frequency and resizing video frames, inference quality refers to the YOLOv11 model variant employed by the worker nodes, e.g., \texttt{LOW} $\rightarrow$ \texttt{YOLOv11n}, \texttt{MEDIUM} $\rightarrow$ \texttt{YOLOv11s}, \texttt{HIGH} $\rightarrow$ \texttt{YOLOv11m}.
@@ -145,15 +163,12 @@ The agent’s decision-making is shaped by its preference structure. Violations 
 
 In effect, the agent internalizes a dynamic control policy that minimizes long-term surprise~\cite{sedlak_adaptive_2024}, adapts to the environment via learning, and maintains operational stability under edge constraints.
 
-TODO: Figure depicting producer architecture
 
 \section{Worker Architecture}
 \label{sec:evaluation-implementation-worker-architecture}
 Worker nodes form the computational core of the distributed pipeline. Their role is to execute inference tasks on data segments received from the producer and transmit the results to the collector. Each worker operates independently and adheres to a pull-based communication model, thereby ensuring a decentralized and scalable architecture.
 
 Crucially, workers do not maintain internal logic for deciding whether a parameter change is required. Instead, they execute the received task exactly as instructed. If a message with type \texttt{CHANGE} is received, the worker applies all changes listed in the message's metadata—such as switching the YOLOv11 model or updating FPS/resolution targets—and then resumes regular processing. This design simplifies the worker logic and ensures synchronization across the system with minimal overhead.
-
-TODO: Figure depicting worker architecture
 
 \subsection{Startup and Registration}
 Upon initialization, a worker registers with the producer using its unique identifier and receives the current stream configuration, including the active inference quality settings. The worker then initializes the YOLO models for future inference.
@@ -179,7 +194,6 @@ This pipeline handles the transmission of processed results to the collector. It
 \section{Collector Architecture}
 The collector node forms the terminal stage of the distributed pipeline. Its primary responsibility is to receive results from worker nodes, reconstruct the output stream in the correct order, and optionally render or store the final output. 
 
-TODO: Figure depicting collector architecture
 
 \subsection{Result reordering}
 The collector receives completed tasks from workers via a ZeroMQ PULL socket. Each task includes a unique \texttt{id} and a \texttt{stream\_key}, which together uniquely identify a specific frame within a logical stream. To maintain correct ordering, the collector uses a blocking dictionary that buffers out-of-order results until all preceding frames have arrived. If a task is delayed or lost—for example, due to a slow or faulty worker—it is dropped after a configurable timeout using a strike-based policy, thereby preserving the responsiveness of the system.

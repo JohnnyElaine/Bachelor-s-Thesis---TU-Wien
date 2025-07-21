@@ -66,13 +66,7 @@ A single video stream is processed at a constant source frame rate. At the begin
 
 This scenario simulates a dynamic workload by varying the number of concurrent video streams during runtime. Three workers are assigned fixed computational capacities of 80\%, 75\%, and 70\%, respectively. The producer initiates multiple streams during a certain stream multiplier schedule, at key points during the runtime:
 
-\begin{itemize}
-    \item 0\%–-20\%: 1 stream
-    \item 20\%–-40\%: 2 stream
-    \item 40\%-–60\%: 3 streams
-    \item 60\%–-80\%: 2 streams
-    \item 80\%–-100\%: 1 stream
-\end{itemize}
+\input{vector-drawings/evaluation_scenario_comp_demand}
 
 Each stream is identified by a unique \texttt{stream\_key} and processed independently through the same distributed pipeline. The worker nodes receive tasks from all streams interleaved and must process them within their capacity constraints.
 
@@ -90,6 +84,8 @@ This scenario evaluates the ability of the AIF agent to learn the new transition
 \section{Results}
 
 This section presents and interprets the results of the evaluation comparing an Active Inference (AIF) based agent with a baseline heuristic controller across three simulation scenarios. The analysis focuses on five core metrics that quantify SLO compliance, system stability, and output stream quality. Results are presented comparatively and are followed by a summary table aggregating the main findings.
+
+The complete results, including all measured metrics and plots, are provided in the results section of the appendix~\ref{appendix:chap:simulation-results}.
 
 \subsection{Evaluation Metrics and Their Significance}
 
@@ -120,7 +116,24 @@ The \textbf{maximum SLO violation streak} increased from \(10\) to \(15\) timest
 
 In this scenario, the system experiences fluctuating resource availability. The AIF agent outperformed the heuristic in SLO compliance: \(96.7\%\) of time with all SLOs fulfilled versus \(95.4\%\) for the heuristic (+1.37\%), and an average SLO fulfillment of \(98.7\%\) versus \(98.5\%\) (+0.26\%).
 
-However, this came at the cost of stream quality. The AIF agent yielded a \textbf{stream quality score} of \(0.672\), compared to \(0.754\) for the heuristic, a reduction of \(-10.90\%\). This drop reflects the agent’s bias toward maintaining SLO satisfaction under resource constraints, prioritizing stability over QoE maximization.
+However, this came at the cost of stream quality. The AIF agent yielded a \textbf{stream quality score} of \(0.672\), compared to \(0.754\) for the heuristic, a reduction of \(-10.90\%\). Although the agent's preference for maximizing the stream quality score and fulfilling SLOs remains the same, it still indicates a bias toward maintaining SLO satisfaction under resource constraints. 
+
+This is reflected in figure~\ref{fig:evaluation-demand-slo-values-comparison}, illustrating the evolution of SLO values, while Figure~\ref{fig:evaluation-demand-metrics-comparison} shows the corresponding system metrics. The Active Inference agent responds promptly to increased computational demand when a second stream is introduced and effectively prevents an SLO violation upon the addition of a third stream. However, it exhibits a conservative adjustment behavior when the number of active streams is reduced, hesitating to restore stream quality parameters.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/results/variable_computational_demand/none_combined_slo_values.pdf}
+    \caption{Scenario B: Variable Computational Demand -- SLO values}
+    \label{fig:evaluation-demand-slo-values-comparison}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/results/variable_computational_demand/none_combined_quality_metrics.pdf}
+    \caption{Scenario B: Variable Computational Demand -- Quality Score}
+    \label{fig:evaluation-demand-metrics-comparison}
+\end{figure}
+
 
 The maximum violation streak increased from \(16\) to \(23\) timesteps (+43.75\%), and convergence took slightly longer (+11.11\%). These effects highlight a tradeoff: higher global SLO assurance at the expense of transient responsiveness and quality.
 
