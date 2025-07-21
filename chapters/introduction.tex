@@ -3,7 +3,7 @@
 The rapid growth of Internet of Things (IoT) devices, mobile computing applications, and real-time sensor networks has led to an exponential increase in data streams generated at the edge of the network. As a consequence, edge computing has emerged as a distributed paradigm, wherein processing and decision-making are performed as close as possible to data sources \cite{deng_edge_2020}. The core promise of edge computing lies in its capacity to
 reduce latency, enhance privacy, save bandwidth, and improve responsiveness by processing data closer to the sources of generation \cite{deng_edge_2020}. 
 
-However, edge computing introduces its own set of challenges. Edge devices are highly heterogeneous \cite{furst_elastic_2018}, constrained in terms of compute, memory, and energy availability, and operate in unpredictable environments \cite{sedlak_active_2024, danilenka_adaptive_2025}. This complexity is exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. The ability to provide high-quality service under such conditions is critically dependent on the capacity to monitor, predict, and enforce Service Level Objectives (SLOs) --quantitative targets, such as latency, throughput, and resource utilization \cite{sedlak_diffusing_2024, nastic_sloc_2020}. 
+However, edge computing introduces its own set of challenges. Edge devices are highly heterogeneous \cite{furst_elastic_2018}, constrained in terms of compute, memory, and energy availability, and operate in unpredictable environments \cite{sedlak_active_2024, danilenka_adaptive_2025}. This complexity is exacerbated by Quality of Service (QoS) and Quality of Experience (QoE) standards that modern edge computing scenarios must sustain. The ability to provide high-quality service under such conditions is critically dependent on the capacity to monitor, predict, and enforce Service Level Objectives (SLOs) ---quantitative targets, such as latency, throughput, and resource utilization \cite{sedlak_diffusing_2024, nastic_sloc_2020}. 
 
 Conventional elasticity mechanisms and autoscalers typically address SLO compliance by scaling computational resources. However, such resource scaling strategies are ineffective in edge computing, where additional capacity cannot be provisioned dynamically. Instead, the focus on elasticity must shift toward the services themselves. Inspired by Sedlak et al.~\cite{sedlak_towards_2025}, this thesis adopts a multi-dimensional elasticity approach that adapts the quality and processing configuration of the stream data, rather than modifying the underlying infrastructure.
 
@@ -28,31 +28,48 @@ making their direct application to highly dynamic edge scenarios challenging. Co
 
 This relates to the third major challenge \textit{continuous adaptation}\cite{danilenka_adaptive_2025}. A popular alternative to Heuristic agents are Machine Learning (ML) based approaches to adapt the system. However, as Sedlak et al. observe in \cite{sedlak_active_2024}, these approaches fail to capture gradual changes in the environment, as long as the ML models are not retrained, leading to an inaccurate view of the system. This creates the need for an agent that continuously adapts to its environment \cite{sedlak_equilibrium_2024}.
 
-\section{Research Question and Objectives}
+
+\section{Research Questions and Objectives}
 \label{sec:research-question}
-Given the outlined challenges and research gaps, the primary objective of this thesis is to
-investigate how Active Inference can be effectively applied to resource-constrained edge
-computing environments for the predictive control of elasticity and the enforcement of
-Service Level Objectives. Specifically, the thesis seeks to address the central research question:
 
-\begin{quote}
-\textit{
-How can data streams be processed efficiently in resource-limited edge computing environments using Active Inference to dynamically control elasticity and uphold explicit Service Level Objectives (SLOs) to maintain Quality of Experience (QoE)?
-}
-\end{quote}
+Given the outlined challenges and research gaps, the primary objective of this thesis is to investigate how Active Inference can be used to uphold Service Level Objectives (SLOs) in resource-constrained edge computing environments. The following research questions guide the work:
 
-To answer this question, this thesis pursues the following objectives:
+\begin{enumerate}
+    \item \textbf{Efficient Stream Processing:} 
+    \begin{quote}
+        How can streaming data be processed efficiently in edge computing systems with heterogeneous computational resources?
+    \end{quote}
+    
+    \item \textbf{Elasticity Mechanisms:}
+    \begin{quote}
+        How can elasticity be implemented by adapting stream service parameters to manage computational load?
+    \end{quote}
+    
+    \item \textbf{Control via Active Inference:}
+    \begin{quote}
+        How can an Active Inference agent be used to select stream configurations that balance SLO enforcement and output quality?
+    \end{quote}
+    
+    \item \textbf{Trade-off Analysis:}
+    \begin{quote}
+        What are the trade-offs between upholding SLOs and maximizing Quality of Experience (QoE) in dynamic and resource-limited scenarios?
+    \end{quote}
+\end{enumerate}
+
+To address the research questions, this thesis pursues the following objectives:
+
 \begin{itemize}
-    \item Design and implement a distributed, parallel pipeline for stream processing on edge
-devices
-    \item Employ SLOs as first-class constraints to enforce resource, and latency
-requirements across components of the pipeline.
-    \item  Introduce an elasticity mechanism that can dynamically adapt core stream
-processing parameters to match workload and resource conditions.
-    \item Leverage active inference (AIF), to govern elasticity and ensure continuous fulfillment of SLOs.
-    \item Evaluate the effectiveness of this approach in upholding quality standards
-and resource constraints under realistic edge workloads by using a video stream processing prototype based on YOLO object detection.
+    \item Design and implement a distributed, parallel pipeline for stream processing on resource-constrained edge devices.
+    
+    \item Define and enforce Service Level Objectives (SLOs) as first-class constraints to regulate resource usage and latency across the system.
+    
+    \item Introduce an elasticity mechanism that dynamically adapts core stream parameters in response to varying workload and resource availability.
+    
+    \item Integrate an Active Inference (AIF) agent to govern elasticity decisions in a principled manner, enabling continuous satisfaction of SLOs under uncertainty.
+    
+    \item Evaluate the effectiveness of the proposed approach using a prototype implementation for real-time video processing with YOLO-based object detection, focusing on trade-offs between output quality and SLO compliance.
 \end{itemize}
+
 
 \section{Proposed Approach}
 This thesis proposes a novel distributed parallel pipeline architecture for edge data stream processing, which is tightly coupled with a real-time elasticity mechanism governed by an active inference agent. In this architecture, data streams are partitioned and processed in parallel across multiple worker nodes. Each worker executes inference or transformation tasks, while a collector node aggregates the results. Crucially, a central agent continuously monitors SLOs and system state, and adjusts stream parameters to maximize Quality of Experience (QoE). To balance the resource- and QoE requirements, the system implements Service Level Objectives (SLOs), a fundamental concept used to meet the performance and quality targets of the system \cite{sedlak_towards_2025, nastic_sloc_2020}.

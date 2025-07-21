@@ -35,6 +35,7 @@ A continuous stream of video frames is segmented into tasks and temporarily stor
 The number of tasks generated per second is dependent on the current configuration of the \textit{fps} parameter. Tasks are served upon worker request and consumed from the queue.
 
 \subsection{Service Level Objectives}
+
 Table~\ref{tab:slo-table} shows 4 types of SLOs intending to guarantee the QoE. These SLOs serve as constraints that guide the elastic adaptation process of the producer, helping to maintain a balance between processing quality and system stability.
 
 \begin{table}[h]
@@ -165,10 +166,17 @@ In effect, the agent internalizes a dynamic control policy that minimizes long-t
 
 
 \section{Worker Architecture}
-\label{sec:evaluation-implementation-worker-architecture}
+\label{sec:implementation-worker-architecture}
 Worker nodes form the computational core of the distributed pipeline. Their role is to execute inference tasks on data segments received from the producer and transmit the results to the collector. Each worker operates independently and adheres to a pull-based communication model, thereby ensuring a decentralized and scalable architecture.
 
 Crucially, workers do not maintain internal logic for deciding whether a parameter change is required. Instead, they execute the received task exactly as instructed. If a message with type \texttt{CHANGE} is received, the worker applies all changes listed in the message's metadata—such as switching the YOLOv11 model or updating FPS/resolution targets—and then resumes regular processing. This design simplifies the worker logic and ensures synchronization across the system with minimal overhead.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{img/implementation_worker_architecture.drawio.pdf}
+    \caption{Worker architecture. Detailing the process of requesting tasks, processing them, and sending the results to the collector}
+    \label{fig:implementation-worker-architecture}
+\end{figure}
 
 \subsection{Startup and Registration}
 Upon initialization, a worker registers with the producer using its unique identifier and receives the current stream configuration, including the active inference quality settings. The worker then initializes the YOLO models for future inference.

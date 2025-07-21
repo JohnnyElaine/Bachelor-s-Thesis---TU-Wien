@@ -1,5 +1,6 @@
 \chapter{Discussion}
 \section{Decentralized Inference Optimization: Active Inference on Worker Nodes}
+
 An interesting direction for future work involves deploying Active Inference (AIF) agents locally on worker nodes to optimize inference quality settings in a decentralized manner. While the current implementation centralizes control logic within the producer node, this approach could be extended by equipping workers with autonomous decision-making capabilities, particularly for optimizing their internal configurations.
 
 Each worker would model the relationship between inference settings, such as YOLOv11 model variants (small, medium, large) and the quality of its local output (e.g., object detection accuracy, false positives). Using the AIF framework, the worker would learn a generative model that encodes how different inference configurations affect the output quality under varying input conditions.

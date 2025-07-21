@@ -1,4 +1,5 @@
 \chapter{Background}
+
 The three core mechanisms used for dynamically adjusting stream processing in this thesis are Service Level Objectives (SLOs), Elasticity and Active Inference (AIF). This chapter introduces foundational concepts, essential for understanding how Active Inference
 can be effectively leveraged to uphold Service Level Objectives (SLOs) in resource-constrained
 edge computing environments. The first section establishes the critical role of SLOs in edge computing scenarios. The subsequent section defines the role of Elasticity in Edge Computing Systems. The penultimate section explores all of the key concepts regarding Active Inference and the Free Energy Principle. The final section discusses the principles for using AIF in distributed systems.
@@ -23,6 +24,36 @@ might define an SLO that memory usage must remain below 80\% of available capaci
 
 Crucially, SLOs can serve a dual role: they can be targets for optimization and/or constraints that the
 system must not violate \cite{casamayor_pujol_deepslos_2024, sedlak_diffusing_2024}. In edge scenarios, where stream quality competes directly with resource availability, such as video streaming tasks \cite{sedlak_adaptive_2024}, SLO-aware control is essential \cite{sedlak_slo-aware_2025}.
+
+
+\subsection{Service Level Objectives for Resource Management}
+
+Each SLO defines a desired operational range for a specific performance metric. They are represented as bounded variables whose values must remain within a target range to ensure system stability.
+
+For instance, an SLO limiting memory usage might be formulated as:
+\[
+\text{Memory} < \theta
+\]
+
+Where \(\theta\) denotes the predefined threshold for acceptable memory capacity, e.g., \(\theta = 512\text{MB}\). Violating this constraint signals that the system is exceeding its limitations and requires an elastic adjustment.
+
+In this thesis, SLOs are implemented through a normalized ratio between the current observation $x$ and the associated threshold $\theta$. This ratio, hereafter referred to as the \textit{SLO value}, is computed as
+
+\[
+\text{SLO value} = \frac{x}{\theta}
+\]
+
+An SLO value less than 1 indicates that the constraint is fulfilled. Conversely, values exceeding 1 
+(\(\geq1\)) signal an SLO violation, necessitating corrective action.
+
+For illustration, consider again the memory usage constraint with \(\theta = 512\text{MB}\). A current observation of \(x = 256\text{MB}\) yields an SLO value of \(0.5\), thus satisfying the objective. In contrast, a usage of \(x = 523\text{MB}\) results in
+
+\[
+\text{SLO value} = \frac{523}{512} \approx 1.02
+\]
+indicating a minor SLO violation.
+
+This formulation enables a uniform treatment of heterogeneous resource constraints, allowing the system to monitor, compare, and respond to SLO fulfillment in a principled and quantitative manner.
 
 \section{Elasticity in Edge Computing Systems}
 Elasticity refers to a system’s ability to automatically adapt to changing workloads and resource availability. Since edge devices typically operate under fixed compute budgets, scaling hardware resources is not an option. Thus, elasticity must be achieved through intelligent control of software parameters \cite{sedlak_towards_2025}.
