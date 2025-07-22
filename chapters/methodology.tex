@@ -12,13 +12,13 @@ Collector}. The Producer generates a continuous stream of data segments, so-call
 
 This modular separation enables horizontal scalability and encapsulation of concerns: the Producer governs stream rate and complexity, the Workers handle computation, and the Collector ensures ordering and completion. This design is inspired by the dataflow paradigm typical in modern stream processing systems, such as Apache Storm \cite{carbone_apache_2015, noauthor_apache_nodate}. 
 
-Figure \ref{fig:parallel-distributed-pipeline} provides a high-level overview of the design.
+Figure \ref{fig:methodology-parallel-distributed-pipeline} provides a high-level overview of the design.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{img/methodology/methodology_parallel_pipeline_overview.drawio.pdf}
     \caption{Overview of system architecture describing (1) request-reply communication between producer and worker, (2) collection of results by the collector, (3) action-perception cycle of the AIF agent.}
-    \label{fig:parallel-distributed-pipeline}
+    \label{fig:methodology-parallel-distributed-pipeline}
 \end{figure}
 
 
@@ -47,7 +47,7 @@ The Producer operates as the central controller of stream parameterization. The 
 
 \section{Active Inference-Based Elasticity Control}
 
-The system exposes control of the \textit{stream quality parameters} to the AIF agent.
+The system exposes control of the \textit{stream quality parameters} to the AIF agent (As depicted in figure~\ref{fig:methodology-parallel-distributed-pipeline} at the producer). 
 
 \subsection{Generative Model Construction}
 Central to a capable AIF agent is the construction of the \textit{generative model}. It represents the causal relationships between system configuration parameters and observable SLO metrics. It captures both direct (i.e., quality parameters) and indirect dependencies (i.e., SLO) affecting agent behavior. This model includes:

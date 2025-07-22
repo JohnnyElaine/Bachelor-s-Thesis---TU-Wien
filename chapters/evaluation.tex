@@ -3,10 +3,12 @@
 
 This chapter evaluates the methodology proposed in Chapter~\ref{chap:methodology} by applying the implementation described in Chapter~\ref{chap:implementation}. The objective is to empirically assess whether an Active Inference (AIF) agent can dynamically control computational elasticity to uphold Service Level Objectives (SLOs) while maximizing Quality of Experience (QoE) in edge computing environments. To provide a grounded comparison, we contrast the AIF agent with a simple heuristic agent under three controlled scenarios: a stable baseline, variable computational demand, and fluctuating computational budget. Each scenario simulates different real-world challenges encountered in distributed edge deployments, such as load bursts, resource contention, and partial node failure.
 
-\section{Baseline: Heuristic Control Agent}
+\section{Baseline: Threshold Based Control Agent}
 \label{sec:evaluation-heuristic}
 
-To evaluate the effectiveness of the Active Inference approach, we implement a baseline agent that follows a fixed heuristic policy. This agent operates reactively based on SLO values observed during runtime. Whenever an SLO violation is detected, the heuristic agent adjusts stream parameters with the highest capacity. If the parameters have the same capacity, the decreasing action is taken according to a predefined order of importance: first reducing the inference quality, then the fps, and finally the resolution. When all SLos are overfullfilled, i.e., \(\text{SLO-Value} < 0.85\) and the current configuration is not maximal, it incrementally scales the quality parameters back up in the same order.
+To evaluate the effectiveness of the Active Inference approach, we implement a baseline agent based on a fixed threshold (heuristic) policy. Threshold-based autoscaling is the most widely adopted control strategy in both academic and industrial settings~\cite{arabnejad_comparison_2017}, including platforms such as Amazon EC2~\cite{noauthor_amazon_nodate}, Microsoft Azure~\cite{noauthor_cloud_nodate}, OpenStack~\cite{noauthor_open_nodate}, and Kubernetes~\cite{noauthor_production-grade_nodate}. Their simplicity, transparency, and widespread deployment make them a well-established baseline for evaluating more sophisticated, model-based control schemes.
+
+The agent operates reactively based on SLO values observed during runtime. Whenever an SLO violation is detected, the heuristic agent adjusts stream parameters with the highest capacity. If the parameters have the same capacity, the decreasing action is taken according to a predefined order of importance: first reducing the inference quality, then the fps, and finally the resolution. When all SLos are overfullfilled, i.e., \(\text{SLO-Value} < 0.85\) and the current configuration is not maximal, it incrementally scales the quality parameters back up in the same order.
 When the SLOs are fulfilled but too close to the critical threshold, i.e., \(0.85 \leq \text{SLO-Value} \leq 1\), no action is taken.
 
 The heuristic agent does not use a generative model or perform any probabilistic inference. It cannot anticipate future states or reason under uncertainty. This makes it inherently limited to short-term, reactive control decisions. Despite its simplicity, this agent serves as a relevant baseline for highlighting the benefits of model-based adaptation under the Active Inference framework. The comparison focuses on control stability, responsiveness, and long-term QoE.
@@ -89,7 +91,7 @@ The complete results, including all measured metrics and plots, are provided in 
 
 \subsection{Evaluation Metrics and Their Significance}
 
-The evaluation is based on five key metrics:
+The evaluation uses the following five metrics to interpret the viability and performance of the approach:
 
 \begin{itemize}
   \item \textbf{Time All SLOs Met Simultaneously}: Fraction of time where no SLO was violated. Higher values indicate better global SLO satisfaction.
@@ -122,14 +124,14 @@ This is reflected in figure~\ref{fig:evaluation-demand-slo-values-comparison}, i
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/results/variable_computational_demand/none_combined_slo_values.pdf}
+    \includegraphics[width=\textwidth]{img/results/variable_computational_demand/none_combined_slo_values.pdf}
     \caption{Scenario B: Variable Computational Demand -- SLO values}
     \label{fig:evaluation-demand-slo-values-comparison}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{img/results/variable_computational_demand/none_combined_quality_metrics.pdf}
+    \includegraphics[width=\textwidth]{img/results/variable_computational_demand/none_combined_quality_metrics.pdf}
     \caption{Scenario B: Variable Computational Demand -- Quality Score}
     \label{fig:evaluation-demand-metrics-comparison}
 \end{figure}
