@@ -1,7 +1,7 @@
 \chapter{Evaluation}
 \label{chap:evaluation}
 
-This chapter evaluates the methodology proposed in Chapter~\ref{chap:methodology} by applying the implementation described in Chapter~\ref{chap:implementation}. The objective is to empirically assess whether an Active Inference (AIF) agent can dynamically control computational elasticity to uphold Service Level Objectives (SLOs) while maximizing Quality of Experience (QoE) in edge computing environments. To provide a grounded comparison, we contrast the AIF agent with a simple heuristic agent under three controlled scenarios: a stable baseline, variable computational demand, and fluctuating computational budget. Each scenario simulates different real-world challenges encountered in distributed edge deployments, such as load bursts, resource contention, and partial node failure.
+This chapter evaluates the methodology proposed in Chapter~\ref{chap:methodology} by applying the implementation described in Chapter~\ref{chap:implementation}. The objective is to empirically assess whether an Active Inference (AIF) agent can dynamically control computational elasticity to uphold Service Level Objectives (SLOs) while maximizing Quality of Experience (QoE) in edge computing environments. To provide a grounded comparison, we contrast the AIF agent with a simple threshold-based agent under three controlled scenarios: a stable baseline, variable computational demand, and fluctuating computational budget. Each scenario simulates different real-world challenges encountered in distributed edge deployments, such as load bursts, resource contention, and partial node failure.
 
 \section{Baseline: Threshold Based Control Agent}
 \label{sec:evaluation-heuristic}
@@ -9,8 +9,8 @@ This chapter evaluates the methodology proposed in Chapter~\ref{chap:methodology
 To evaluate the effectiveness of the Active Inference approach, we implement a baseline agent based on a fixed threshold (heuristic) policy. Threshold-based autoscaling is the most widely adopted control strategy in both academic and industrial settings~\cite{arabnejad_comparison_2017}, including platforms such as Amazon EC2\footnote{Amazon EC2:~\url{https://aws.amazon.com/ec2/}}, Microsoft Azure\footnote{Microsoft Azure:~\url{https://azure.microsoft.com/en-us/}}, and OpenStack\footnote{Oepnstack~\url{https://www.openstack.org/}}
 . Their simplicity, transparency, and widespread deployment make them a well-established baseline for evaluating more sophisticated, model-based control schemes.
 
-The agent operates reactively based on SLO values observed during runtime. Whenever an SLO violation is detected, the heuristic agent adjusts stream parameters with the highest capacity. If the parameters have the same capacity, the decreasing action is taken according to a predefined order of importance: first reducing the inference quality, then the fps, and finally the resolution. When all SLos are overfullfilled, i.e., \(\text{SLO-Value} < 0.85\) and the current configuration is not maximal, it incrementally scales the quality parameters back up in the same order.
-When the SLOs are fulfilled but too close to the critical threshold, i.e., \(0.85 \leq \text{SLO-Value} \leq 1\), no action is taken.
+The agent operates reactively based on SLO values observed during runtime. Whenever an SLO violation is detected, the heuristic agent adjusts stream parameters with the highest capacity. If the parameters have the same capacity, the decreasing action is taken according to a predefined order of importance: first reducing the inference quality, then the fps, and finally the resolution. When all SLos are overfullfilled, i.e., \(\text{SLO-Value} < 0.8\) and the current configuration is not maximal, it incrementally scales the quality parameters back up in the same order.
+When the SLOs are fulfilled but too close to the critical threshold, i.e., \(0.8 \leq \text{SLO-Value} \leq 1\), no action is taken.
 
 The heuristic agent does not use a generative model or perform any probabilistic inference. It cannot anticipate future states or reason under uncertainty. This makes it inherently limited to short-term, reactive control decisions. Despite its simplicity, this agent serves as a relevant baseline for highlighting the benefits of model-based adaptation under the Active Inference framework. The comparison focuses on control stability, responsiveness, and long-term QoE.
 
@@ -58,7 +58,7 @@ This configuration provides sufficient headroom for parallel task execution and 
 
 This scenario evaluates agents' behavior in a stable and controlled environment. It serves as the baseline to assess the steady-state behavior of both agents. The goal is to analyze convergence behavior, control stability, and SLO compliance in the absence of external perturbations.
 
-The experiment is conducted using three worker nodes, each assigned a fixed computational capacity of 60\%, 50\%, and 40\%, respectively
+The experiment is conducted using three worker nodes, each assigned a fixed computational capacity of 60\%, 50\%, and 40\%, respectively.
 
 These normalized capacity values simulate processing slowdowns by artificially extending inference time. The capacities are deliberately unequal to reflect the heterogeneity typical of real-world edge environments, where nodes differ in hardware capabilities, energy budgets, or concurrent workloads.
 

@@ -17,7 +17,7 @@ The architecture consists of three roles:
 
 Communication is fully asynchronous and implemented using ZeroMQ sockets~\cite{noauthor_zeromqpyzmq_nodate}. Task dispatch from the Producer to Workers uses the REQ-ROUTER pattern, forming a pull-based work distribution model, also known as a Load-Balancing Pattern. Processed results are forwarded from Workers to the Collector using the PUSH-PULL pattern. This design ensures that work is allocated based on each worker’s readiness, optimizing system responsiveness and throughput.
 
-ZeroMQ sockets are multiplexed using event loops, allowing simultaneous listening and sending. Task payloads (NumPy arrays) are transmitted as raw binary data without any copying, by leveraging the buffer interface they implement. Task metadata is serialized using msgpack \cite{noauthor_msgpackmsgpack-python_nodate} for compact binary transport.
+ZeroMQ sockets are multiplexed using event loops, allowing simultaneous listening and sending. Task payloads (NumPy arrays) are transmitted as raw binary data without any copying, by leveraging the buffer interface they implement. Message and task metadata is serialized using msgpack~\cite{noauthor_msgpackmsgpack-python_nodate} for compact binary transport.
 
 
 \section{Producer Architecture}
@@ -31,6 +31,7 @@ A continuous stream of video frames is segmented into tasks and temporarily stor
     \item \texttt{stream\_key:} Identifier for multi-stream support.
     \item \texttt{data:} A video frame, as a NumPy \texttt{ndarray}.
 \end{itemize}
+
 The number of tasks generated per second is dependent on the current configuration of the \textit{fps} parameter. Tasks are served upon worker request and consumed from the queue.
 
 \subsection{Service Level Objectives}
@@ -76,7 +77,7 @@ Violations of this SLO indicate that the aggregate compute capacity of the syste
 
 \paragraph{Highest Per-Worker Average Task Processing Time SLO} Enforces an upper bound on the slowest worker’s performance. It ensures that no individual worker lags so far behind that its results become irrelevant to the output stream. This is particularly important in distributed pipelines, where late-arriving results may be discarded if the collector has already progressed past the corresponding task ID.
 
-Here, \(\varepsilon_\text{worker} \geq 1\) provides additional tolerance compared to the global SLO. A typical setting is \(\varepsilon_\text{worker} = 4\), allowing slower nodes to process a task in up to 4 times the time budget permitted by the frame rate. By ensuring that even the slowest node performs within tolerable bounds, the system can maintain temporal coherence and avoid dropping results from late workers.
+Here, \(\varepsilon_\text{worker} \geq 1\) provides additional tolerance compared to the global SLO. A typical setting is \(\varepsilon_\text{worker} = 4\), allowing slower nodes to process a task in up to 4 times the time budget permitted by the frame rate. By ensuring that even the slowest node performs within tolerable bounds, the system can stay synchronized and avoid discarding results from late workers.
 
 \subsection{SLO State Discretization}
 To enable discrete decision-making within the Active Inference controller, the continuous \textit{SLO value} is transformed into one of three discrete SLO states:
@@ -97,19 +98,18 @@ To enable discrete decision-making within the Active Inference controller, the c
 \end{table}
 
 
-This ternary discretization introduces a minimal yet effective abstraction over the continuous SLO domain. It enables the Active Inference agent to reason over discrete system states when selecting actions. OK states reflect a healthy operating condition; WARNING states indicate a need for caution and CRITICAL states signal a SLO violation.
-
+This ternary discretization introduces a minimal yet effective abstraction over the continuous SLO domain. It enables the Active Inference agent to reason over discrete system states when selecting actions. OK states reflect a healthy operating condition; WARNING states indicate being close to the unfulfillment threshold and CRITICAL states signal a SLO violation.
 
 \subsection{Elasticity and Stream Parameter Control}
 The \textit{Producer} serves as the central control entity for elasticity. It continuously monitors and adjusts three key \textit{quality parameters} of the video stream: (1) frames per second (\textit{fps}), (2) \textit{resolution}, and (3) \textit{inference quality}. While the producer directly sets fps and resolution by modulating task generation frequency and resizing video frames, inference quality refers to the YOLOv11 model variant employed by the worker nodes, e.g., \texttt{LOW} $\rightarrow$ \texttt{YOLOv11n}, \texttt{MEDIUM} $\rightarrow$ \texttt{YOLOv11s}, \texttt{HIGH} $\rightarrow$ \texttt{YOLOv11m}.
 
-Although inference is executed on the workers, the producer dictates the inference quality of the entire system. To enforce a configuration change, it maintains a dedicated \textit{backlog} for each worker node. When the producer initiates a change (e.g., \texttt{MEDIUM} $\rightarrow$ \texttt{LOW}), it inserts the entry \texttt{CHANGE\_INFERENCE\_QUALITY=LOW} into the backlog of every registered worker. Upon the next task request, the worker's backlog is evaluated. If a configuration change is pending, the producer replies with a message of type \texttt{CHANGE} detailing all configuration changes the worker needs to make. This includes \texttt{CHANGE\_INFERENCE\_QUALITY=LOW}, instructing the worker to adapt its local inference model accordingly. Once the change is applied, the worker resumes normal task processing.
+Although inference is executed on the workers, the producer dictates the inference quality of the entire system. To enforce a configuration change, it maintains a dedicated \textit{backlog} for each worker node. When the producer initiates a change (e.g., \texttt{MEDIUM} $\rightarrow$ \texttt{LOW}), it inserts the entry \texttt{CHANGE\_INFERENCE\_QUALITY=LOW} into the backlog of every registered worker. Upon the next task request, the worker's backlog is checked. If a configuration change is pending, the producer replies with a message of type \texttt{CHANGE} detailing all configuration changes the worker needs to make. This includes \texttt{CHANGE\_INFERENCE\_QUALITY=LOW}, instructing the worker to adapt its local inference model accordingly. Once the change is applied, the worker resumes normal task processing.
 
 This design ensures that all nodes operate under a globally consistent inference configuration while minimizing coordination overhead.
 
 \subsection{Active Inference Agent}
 \label{sec:evaluation-implementation-active-infernce-agemt}
-The control of the \textit{quality parameters} is delegated to the AIF agent running on the producer. Its objective is to uphold all defined Service Level Objectives (SLOs) while maximizing the Quality of Experience (QoE) through adaptive control of frame rate (FPS), resolution, and inference quality. The agent is implemented using pymdp \cite{heins_pymdp_2022} and operates continuously, executing one action-perception cycle every 500\,ms. Each cycle results in no action or a change in \textit{stream quality parameters}. 
+The control of the \textit{quality parameters} is delegated to the AIF agent running on the producer. Its objective is to uphold all defined Service Level Objectives (SLOs) while maximizing the Quality of Experience (QoE) through adaptive control of frame rate (FPS), resolution, and inference quality. The agent is implemented using pymdp~\cite{heins_pymdp_2022} and operates continuously, executing one action-perception cycle every 500\,ms. Each cycle results in no action or a change in \textit{stream quality parameters}. 
 
 \paragraph{Generative Model Construction.}
 The agent operates a \textit{generative model} comprising the following components:
@@ -139,8 +139,7 @@ The AIF agent operates using a \textit{relative control} strategy. Rather than s
 
 A full action is a tuple $(a_\text{res}, a_\text{fps}, a_\text{qual})$, representing a joint change in the current configuration.
 
-
-This results in an action space of $3 \times 3 \times 3 = 27$ discrete joint actions. Each action tuple $(\Delta_\text{res}, \Delta_\text{fps}, \Delta_\text{qual})$ specifies a directional adjustment in each dimension, where \(\Delta \in \{-1, 0, +1\}\). The current configuration is then updated accordingly, subject to parameter bounds. For instance, an action with \(\Delta_\text{fps} = -1\) reduces the frame rate by one level (e.g., from 30 to 25 FPS), unless the lower bound is already reached.
+Each action tuple $(\Delta_\text{res}, \Delta_\text{fps}, \Delta_\text{qual})$ specifies a directional adjustment in each dimension, where \(\Delta \in \{-1, 0, +1\}\). The current configuration is then updated accordingly, subject to parameter bounds. For instance, an action with \(\Delta_\text{fps} = -1\) reduces the frame rate by one level (e.g., from 30 to 25 FPS), unless the lower bound is already reached.
 
 This relative formulation reduces the complexity of the policy space while enabling fine-grained and adaptive parameter control over time.
 
@@ -155,14 +154,14 @@ To adapt to non-stationary runtime conditions, the agent continuously refines it
 This learning mechanism allows the agent to gradually internalize the causal structure of the environment, e.g., how a reduction in resolution affects memory usage or how inference quality relates to task processing time. As a result, the agent becomes increasingly adept at selecting configurations that uphold SLOs under varying conditions.
 
 \paragraph{Decision Prioritization and Trade-offs.}
-The agent’s decision-making is shaped by its preference structure. Violations of any SLO are assigned a utility penalty large enough to outweigh the benefit of increasing QoE. This lexicographic structure ensures that:
+The agent’s decision-making is shaped by its preference structure. Violations of any SLO are assigned a utility penalty slightly larger than the preference to increase stream quality. This lexicographic structure ensures that:
+
 \begin{itemize}
   \item SLO violations are strictly avoided whenever possible.
   \item QoE is maximized only within the bounds of safe operation.
 \end{itemize}
 
 In effect, the agent internalizes a dynamic control policy that minimizes long-term surprise~\cite{sedlak_adaptive_2024}, adapts to the environment via learning, and maintains operational stability under edge constraints.
-
 
 \section{Worker Architecture}
 \label{sec:implementation-worker-architecture}
@@ -173,7 +172,7 @@ Crucially, workers do not maintain internal logic for deciding whether a paramet
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=\textwidth]{img/implementation/implementation_worker_architecture.drawio.pdf}
-    \caption{Worker architecture. Detailing the process of requesting tasks, processing them, and sending the results to the collector}
+    \caption{Worker architecture. Detailing the process of (1) requesting tasks, (2) forwarding them internally using pipes,  (3) processing them, and (4) sending the results to the collector.}
     \label{fig:implementation-worker-architecture}
 \end{figure}
 
@@ -186,9 +185,9 @@ To support concurrent operations and avoid resource contention, each worker is s
 Most importantly, the use of three separate processes allows the worker to avoid bottlenecks caused by Python’s GIL and to exploit multicore CPUs effectively.
 
 \subsection{Work Requesting Pipeline.}
-This pipeline manages interaction with the producer and forwards received tasks for processing. It sends requests to the producer using a ZeroMQ REQ socket to request work. 
+This pipeline manages interaction with the producer and forwards received tasks for processing. It sends requests to the producer using a ZeroMQ REQ socket to request work. The entire procedure of requesting and processing tasks is depicte in figure~\ref{fig:implementation-worker-architecture}.
 
-Each time the worker requests a new task, it attaches its most recent processing time to the request. This metric is used by the producer to compute both global and per-worker SLOs. By making performance reporting part of the task request cycle, the system avoids the need for separate monitoring channels and maintains low overhead.
+Each time the worker requests a new task, it attaches its most recent processing time to the request. This metric is used by the producer to compute both global and per-worker SLOs. By making performance reporting part of the task request cycle, the system avoids the need for separate monitoring channels.
 
 Received tasks are buffered until they are ready to be handed over to the \textit{processing pipeline}. New work is requested whenever the task buffer is empty. If the producer facilitates a change in the worker's configuration and the worker receives a message with \texttt{type=CHANGE}, it immediately implements all changes detailed within the message. For example, switching YOLOv11 model.
 
@@ -201,9 +200,8 @@ This pipeline handles the transmission of processed results to the collector. It
 \section{Collector Architecture}
 The collector node forms the terminal stage of the distributed pipeline. Its primary responsibility is to receive results from worker nodes, reconstruct the output stream in the correct order, and optionally render or store the final output. 
 
-
 \subsection{Result reordering}
-The collector receives completed tasks from workers via a ZeroMQ PULL socket. Each task includes a unique \texttt{id} and a \texttt{stream\_key}, which together uniquely identify a specific frame within a logical stream. To maintain correct ordering, the collector uses a blocking dictionary that buffers out-of-order results until all preceding frames have arrived. If a task is delayed or lost—for example, due to a slow or faulty worker—it is dropped after a configurable timeout using a strike-based policy, thereby preserving the responsiveness of the system.
+The collector receives completed tasks from workers via a ZeroMQ PULL socket. Each task includes a unique \texttt{id} and a \texttt{stream\_key}, which together uniquely identify a specific frame within a logical stream. To maintain correct ordering, the collector uses a blocking dictionary that buffers out-of-order results until all preceding frames have arrived. If a task is delayed or lost—--for example, due to a slow or faulty worker—--it is dropped after a configurable timeout using a strike-based policy, thereby preserving the responsiveness of the system.
 
 \subsection{Support for Concurrent Streams}
 The architecture supports multiple concurrent data streams by tracking and assembling frames independently based on the \texttt{stream\_key} attribute. This is particularly important for the evaluation scenario involving changing workload, where multiple video streams are processed in parallel. Each stream is assigned its own logical ordering buffer, and the collector ensures that results from different streams do not interfere with one another.
