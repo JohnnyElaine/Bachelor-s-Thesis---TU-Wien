@@ -1,29 +1,29 @@
 \chapter{Background}
 
-The three core mechanisms used for dynamically adjusting stream processing in this thesis are Service Level Objectives (SLOs), Elasticity and Active Inference (AIF). This chapter introduces foundational concepts, essential for understanding how Active Inference
+The three core mechanisms used for dynamically adjusting stream processing in this thesis are Service Level Objectives (SLOs), Elasticity and Active Inference (AIF). This chapter introduces foundational concepts, essential for understanding how AIF
 can be effectively leveraged to uphold Service Level Objectives (SLOs) in resource-constrained
 edge computing environments. The first section establishes the critical role of SLOs in edge computing scenarios. The subsequent section defines the role of Elasticity in Edge Computing Systems. The penultimate section explores all of the key concepts regarding Active Inference and the Free Energy Principle. The final section discusses the principles for using AIF in distributed systems.
 
 \section{Edge Computing and Service Level Objectives}
 Edge computing refers to a distributed computing paradigm in which data processing occurs in
 close proximity to the data source. This architectural shift reduces the latency and bandwidth
-limitations inherent in centralized cloud computing \cite{deng_edge_2020}, while enabling real-time
+limitations inherent in centralized cloud computing~\cite{deng_edge_2020}, while enabling real-time
 analytics for latency-sensitive tasks such as autonomous driving, smart surveillance, and
-industrial automation \cite{zhang_octopus_2023}.
+industrial automation~\cite{zhang_octopus_2023}.
 
-Edge computing environments are characterized by pronounced heterogeneity \cite{furst_elastic_2018} , i.e, resource-asymmetry, vendor specifications, and usage patterns \cite{danilenka_adaptive_2025}. Devices may range from embedded computing boards to more capable edge servers, each
+Edge computing environments are characterized by pronounced heterogeneity~\cite{furst_elastic_2018}, i.e, resource-asymmetry, vendor specifications, and usage patterns~\cite{danilenka_adaptive_2025}. Devices may range from embedded computing boards to more capable edge servers, each
 with distinct resource constraints in terms of CPU, memory, energy, bandwidth and especially GPU, which has become a significant factor due to increasing inference demand. When tasked with continuous stream
 processing (e.g., real-time video analysis), such systems must dynamically manage
 computational demands without the luxury of cloud-level resource elasticity.
 
 To formalize quality expectations in such constrained environments, Service Level Objectives
-(SLOs) are used \cite{casamayor_pujol_deepslos_2024}. SLOs define quantifiable thresholds on performance metrics, such as
-response time, memory usage, or energy consumption targets \cite{danilenka_adaptive_2025}. SLOs serve as internal optimization goals \cite{danilenka_adaptive_2025} to guide system behavior under varying load conditions \cite{nastic_sloc_2020}.
+(SLOs) are used~\cite{casamayor_pujol_deepslos_2024}. SLOs define quantifiable thresholds on performance metrics, such as
+response time, memory usage, or energy consumption targets~\cite{danilenka_adaptive_2025}. SLOs serve as internal optimization goals~\cite{danilenka_adaptive_2025} to guide system behavior under varying load conditions~\cite{nastic_sloc_2020}.
 For example, in a video inference pipeline, one
 might define an SLO that memory usage must remain below 80\% of available capacity.
 
 Crucially, SLOs can serve a dual role: they can be targets for optimization and/or constraints that the
-system must not violate \cite{casamayor_pujol_deepslos_2024, sedlak_diffusing_2024}. In edge scenarios, where stream quality competes directly with resource availability, such as video streaming tasks \cite{sedlak_adaptive_2024}, SLO-aware control is essential \cite{sedlak_slo-aware_2025}.
+system must not violate~\cite{casamayor_pujol_deepslos_2024, sedlak_diffusing_2024}. In edge scenarios, where stream quality competes directly with resource availability, such as video streaming tasks~\cite{sedlak_adaptive_2024}, SLO-aware control is essential~\cite{sedlak_slo-aware_2025}.
 
 
 \subsection{Service Level Objectives for Resource Management}
@@ -56,9 +56,9 @@ indicating a minor SLO violation.
 This formulation enables a uniform treatment of heterogeneous resource constraints, allowing the system to monitor, compare, and respond to SLO fulfillment in a principled and quantitative manner.
 
 \section{Elasticity in Edge Computing Systems}
-Elasticity refers to a system’s ability to automatically adapt to changing workloads and resource availability. Since edge devices typically operate under fixed compute budgets, scaling hardware resources is not an option. Thus, elasticity must be achieved through intelligent control of software parameters \cite{sedlak_towards_2025}.
+Elasticity refers to a system’s ability to automatically adapt to changing workloads and resource availability. Since edge devices typically operate under fixed compute budgets, scaling hardware resources is not an option. Thus, elasticity must be achieved through intelligent control of software parameters~\cite{sedlak_towards_2025}.
 
-Sedlak et al. define elasticity in \cite{sedlak_towards_2025} along multiple axes:
+Sedlak et al. define elasticity in~\cite{sedlak_towards_2025} along multiple axes:
 \begin{itemize}
   \item \textbf{Quality Elasticity} — adjusts application-level parameters such as resolution, FPS,
 or inference model complexity
@@ -69,34 +69,34 @@ or inference model complexity
 Each elasticity action impacts both the system's SLO fulfillment and its Quality of Experience
 (QoE). For instance, reducing the inference model complexity alleviates computational load but may lead to less accurate results. The key challenge lies in selecting the most appropriate elasticity action under uncertainty, while maintaining SLO compliance and maximizing QoE.
 
-Traditional control mechanisms, such as threshold-based rules, static policies or Mache Learning approaches are not optimal to address this trade-off in dynamic environments \cite{sedlak_active_2024}. A model-based approach, capable of learning and adapting to evolving contexts, is therefore required \cite{sedlak_equilibrium_2024, danilenka_adaptive_2025}.
+Traditional control mechanisms, such as threshold-based rules, static policies or Mache Learning approaches are not optimal to address this trade-off in dynamic environments~\cite{sedlak_active_2024}. A model-based approach, capable of learning and adapting to evolving contexts, is therefore required~\cite{sedlak_equilibrium_2024, danilenka_adaptive_2025}.
 
 \section{Active Inference and the Free Energy Principle}
 \subsection{The Free Energy Principle}
-The Free Energy Principle (FEP), as defined in \cite{friston_free-energy_2010}, provides a unified
+The Free Energy Principle (FEP), as defined in~\cite{friston_free-energy_2010}, provides a unified
 theory of perception, action, and learning. It posits that any self-organizing system that
 maintains equilibrium with its environment over time must minimize the long-term divergence between its
-internal beliefs and external sensory states \cite{friston_active_2017}. This divergence, known as
-surprise, refers to the difference between what an agent predicts based on its internal model and what it observes in the environment \cite{sedlak_adaptive_2024}.
+internal beliefs and external sensory states~\cite{friston_active_2017}. This divergence, known as
+surprise, refers to the difference between what an agent predicts based on its internal model and what it observes in the environment~\cite{sedlak_adaptive_2024}.
 
 \subsubsection{Generative Process and Model}
 Agents cannot minimize surprise directly, since the actual way that the world produces sensory data
 is unknown. This process that describes the true causes for how the world generates observable
-outcomes is known as the \textit{generative process} \cite{friston_free-energy_2010, smith_step-by-step_2022}. As an agent is unable to observe the ``real world``, it instead creates an internal representation of the \textit{generative process}, known as the \textit{generative model}. The \textit{generative model} serves as an approximation and is used by the agent to predict and adjust its environment according to its preferences.
+outcomes is known as the \textit{generative process}~\cite{friston_free-energy_2010, smith_step-by-step_2022}. As an agent is unable to observe the ``real world``, it instead creates an internal representation of the \textit{generative process}, known as the \textit{generative model}. The \textit{generative model} serves as an approximation and is used by the agent to predict and adjust its environment according to its preferences.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.8\textwidth]{img/generative-model-generative-process.png}
-    \caption{Distinction and implicit coupling of generative process and the generative model. (taken from \cite{smith_step-by-step_2022})}
+    \caption{Distinction and implicit coupling of generative process and the generative model. (taken from~\cite{smith_step-by-step_2022})}
     \label{fig:generative-process-generative-model}
 \end{figure}
 
-When the \textit{generative process} and the \textit{generative model} differ, the agent will be ``surprised``, causing it to adjust its model closer towards the process \cite{bruineberg_free-energy_2018}. The closer the generative model is to the underlying generative process, the higher the precision of the agent's predictions is \cite{sedlak_active_2024}.
+When the \textit{generative process} and the \textit{generative model} differ, the agent will be ``surprised``, causing it to adjust its model closer towards the process~\cite{bruineberg_free-energy_2018}. The closer the generative model is to the underlying generative process, the higher the precision of the agent's predictions is~\cite{sedlak_active_2024}.
 
 \subsubsection{Free Energy minimization}
-To align the \textit{generative models} with the \textit{generative process}, the agent aims to reduce surprise to the maximum extent. A system cannot directly evaluate surprise, because this would require knowing all hidden states of the world \cite{friston_free-energy_2009}, i.e. the \textit{generative process}. Instead, an agent aims to minimize an upper bound \cite{smith_step-by-step_2022} known as (variational) Free Energy (FE). It captures the difference between the agent's internal representation of the world and its observations, making it a computationally feasible substitution for surprise. Therefore, by minimizing FE, agents implicitly minimize surprise \cite{friston_free-energy_2010}
+To align the \textit{generative models} with the \textit{generative process}, the agent aims to reduce surprise to the maximum extent. A system cannot directly evaluate surprise, because this would require knowing all hidden states of the world~\cite{friston_free-energy_2009}, i.e. the \textit{generative process}. Instead, an agent aims to minimize an upper bound~\cite{smith_step-by-step_2022} known as (variational) Free Energy (FE). It captures the difference between the agent's internal representation of the world and its observations, making it a computationally feasible substitution for surprise. Therefore, by minimizing FE, agents implicitly minimize surprise~\cite{friston_free-energy_2010}
 
-Conceptually, Free Energy can be expressed using the Kullback–Leibler (KL) divergence between an approximate posterior distribution \(Q(s)\) and the true posterior model \(P( s \mid o)\) \cite{parr_active_2022,sajid_active_2021}.
+Conceptually, Free Energy can be expressed using the Kullback–Leibler (KL) divergence between an approximate posterior distribution \(Q(s)\) and the true posterior model \(P( s \mid o)\)~\cite{parr_active_2022,sajid_active_2021}.
 
 
 \begin{equation}
@@ -111,28 +111,28 @@ F\left[Q, o\right] = D_\mathrm{KL}[Q(s) \parallel P(s|o)] \underbrace{ - \ln P(o
   \item \( D_\mathrm{KL}\left[ Q(s) \parallel P(s \mid o) \right] \): KL divergence measuring the dissimilarity between the variational posterior \( Q(s) \) and the true posterior \( P(s \mid o) \).
 \end{itemize}
 
-Although Eq.~\ref{eq:free-energy-concept} is conceptually useful, it cannot be computed directly \cite{smith_step-by-step_2022}: The marginal likelihood \( P(o) \) requires integrating over all possible hidden states, which is generally intractable. Likewise, computing the true posterior \( P(s \mid o) \) requires the marginal likelihood \( P(o) \) and is therefore equally intractable. Instead, Free Energy is evaluated in a form that only requires the generative model \( P(s, o) \) and the variational distribution \( Q(s) \):
+Although Eq.~\ref{eq:free-energy-concept} is conceptually useful, it cannot be computed directly~\cite{smith_step-by-step_2022}: The marginal likelihood \( P(o) \) requires integrating over all possible hidden states, which is generally intractable. Likewise, computing the true posterior \( P(s \mid o) \) requires the marginal likelihood \( P(o) \) and is therefore equally intractable. Instead, Free Energy is evaluated in a form that only requires the generative model \( P(s, o) \) and the variational distribution \( Q(s) \):
 
 \begin{equation}
 F[Q, o] = \mathbb{E}_{Q(s)}[\ln Q(s) - \ln P(s, o)]
 \label{eq:free-energy-computation}
 \end{equation}
 
-Minimizing free energy brings \( Q(s) \) closer to \( P(s \mid o) \) in terms of KL divergence, reducing surprise \cite{smith_step-by-step_2022}.
+Minimizing free energy brings \( Q(s) \) closer to \( P(s \mid o) \) in terms of KL divergence, reducing surprise~\cite{smith_step-by-step_2022}.
 
 \input{vector-drawings/fe_surprise_relationship}
 
 \subsubsection{Expected Free Energy}
-To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is formalized by the Expected Free Energy (EFE). EFE extends the concept of variational Free Energy into the future by evaluating possible future action sequences using a policy \(\pi\). \cite{friston_active_2016}. Agents use EFE to select actions that minimize anticipated surprise and uncertainty. EFE is made up of two key components \cite{parr_active_2022}:
+To act in the world, agents must not only evaluate current states but also anticipate the outcomes of future actions. This is formalized by the Expected Free Energy (EFE). EFE extends the concept of variational Free Energy into the future by evaluating possible future action sequences using a policy \(\pi\).~\cite{friston_active_2016}. Agents use EFE to select actions that minimize anticipated surprise and uncertainty. EFE is made up of two key components~\cite{parr_active_2022}:
 
 \begin{enumerate}
   \item \textbf{Epistemic Value (Information Gain)} — Drives exploration by favoring actions that are expected to yield informative outcomes, improving the agent’s generative model.
   \item \textbf{Pragmatic Value} — Drives exploitation by selecting actions that are likely to fulfill its explicit goals or preferences.
 \end{enumerate}
 
-Together, these terms enable the agent to balance the classic exploration/exploitation tradeoff \cite{sedlak_adaptive_2024, danilenka_adaptive_2025}. In the context of edge computing, this dual mechanism enables Active Inference (AIF) agents to maintain service-level objectives (SLOs) while learning optimal control strategies for dynamic system parameters. \cite{lapkovskis_benchmarking_2025}.
+Together, these terms enable the agent to balance the classic exploration/exploitation tradeoff~\cite{sedlak_adaptive_2024, danilenka_adaptive_2025}. In the context of edge computing, this dual mechanism enables Active Inference (AIF) agents to maintain service-level objectives (SLOs) while learning optimal control strategies for dynamic system parameters.~\cite{lapkovskis_benchmarking_2025}.
 
-Mathematically, the EFE under policy \(\pi\) can be expressed as \cite{parr_active_2022}:
+Mathematically, the EFE under policy \(\pi\) can be expressed as~\cite{parr_active_2022}:
 \begin{equation}
 EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} \mathrm{D_{KL} \left[ Q(s \mid o, \pi) \parallel Q(s, \pi) \right] }}_{\text{infromation gain}} - \underbrace{\mathbb{E}_{Q(o \mid \pi)} \left[ \ln P(o \mid C) \right]}_{\text{pragmatic value}}
 \label{eq:expected-free-energy-formal}
@@ -154,7 +154,7 @@ EFE=\underbrace{-\mathbb{E}_{Q(s, o \mid \pi)} D_\mathrm{KL} \left[ Q(s \mid o, 
 \end{equation}
 
 \subsection{Active Inference}
-Active inference (AIF) operationalizes the Free Energy Principle in artificial agents, extending it to encompass both state estimation and action selection \cite{sedlak_equilibrium_2024, lanillos_active_2021}. To implement the concepts of the Free Energy Principle, an agent maintains a \textit{generative model}, which includes the following categorical distributions \cite{heins_pymdp_2022}:
+Active inference (AIF) operationalizes the Free Energy Principle in artificial agents, extending it to encompass both state estimation and action selection~\cite{sedlak_equilibrium_2024, lanillos_active_2021}. To implement the concepts of the Free Energy Principle, an agent maintains a \textit{generative model}, which includes the following categorical distributions~\cite{heins_pymdp_2022}:
 
 \begin{itemize}
   \item \textbf{Observation model \(P(o \mid s)\):} Defines how the hidden states produce observations and allows the agent to infer what it expects to see, given its beliefs about the world. Specifically, the likelihood model specifies the probability of an observation \(o\) given a hidden state \(s\). 
@@ -166,7 +166,7 @@ Active inference (AIF) operationalizes the Free Energy Principle in artificial a
 
 \subsubsection{The Active Inference loop}
 \label{sec:active-inference-loop}
-To decrease EFE and consequently align the \textit{generative model} with the \textit{generative process}, the agent repeatedly engages in an action-perception loop \cite{sedlak_equilibrium_2024}. Figure \ref{fig:acive-inference-loop} provides a high-level overview. During each cycle, the agent performs three main steps \cite{heins_pymdp_2022}:
+To decrease EFE and consequently align the \textit{generative model} with the \textit{generative process}, the agent repeatedly engages in an action-perception loop~\cite{sedlak_equilibrium_2024}. Figure~\ref{fig:acive-inference-loop} provides a high-level overview. During each cycle, the agent performs three main steps~\cite{heins_pymdp_2022}:
 \begin{enumerate}
     \item \textbf{Perception:} Sampling an observation from the environment.
     \item \textbf{Belief updating:} Updating the agent’s beliefs about states and policies using the
@@ -174,20 +174,20 @@ observation.
     \item \textbf{Action:} Choosing and executing actions that minimize EFE, based on the agent’s posterior over policies.
 \end{enumerate}
 
-This loop is executed at regular intervals during an agent's lifetime. As Bruineberg et al. summerize in \cite{bruineberg_free-energy_2018}: ``This gives rise to a continuous feedback loop, in which what the agent does changes the environment, which changes what the agent perceives, which changes the expectations of the agent, which in turn changes what the agent does (to change the environment).``
+This loop is executed at regular intervals during an agent's lifetime. As Bruineberg et al. summerize in~\cite{bruineberg_free-energy_2018}: ``This gives rise to a continuous feedback loop, in which what the agent does changes the environment, which changes what the agent perceives, which changes the expectations of the agent, which in turn changes what the agent does (to change the environment).``
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.8\textwidth]{img/active-inference-loop.png}
-    \caption{The Active Inference loop. (taken from \cite{bruineberg_free-energy_2018})}
+    \caption{The Active Inference loop. (taken from~\cite{bruineberg_free-energy_2018})}
     \label{fig:acive-inference-loop}
 \end{figure}
 
 \section{Active Inference in Distributed Systems}
-The application of active inference (AIF) to distributed systems, such as edge pipelines or multi-agent infrastructures, enables robust and interpretable control in dynamic and resource-constrained environments. Distributed systems often consist of asynchronous components with overlapping responsibilities, limited observability, and evolving workloads—conditions that challenge traditional rule-based or purely data-driven control methods. AIF addresses these challenges by equipping agents with generative models that capture the causal relationships between system parameters (e.g., processing configurations) and observed outcomes (e.g., SLO satisfaction). By interacting with the environment and updating beliefs, agents learn how their actions affect system behavior. This iterative action-perception cycle allows agents to adapt to their environment during their lifetime. As Sedlak et al. note in \cite{sedlak_active_2024}, “The agent used causal knowledge to gradually develop an understanding of how its actions are related to requirements fulfillment, and which configurations to favor”.
+The application of active inference (AIF) to distributed systems, such as edge pipelines or multi-agent infrastructures, enables robust and interpretable control in dynamic and resource-constrained environments. Distributed systems often consist of asynchronous components with overlapping responsibilities, limited observability, and evolving workloads—conditions that challenge traditional rule-based or purely data-driven control methods. AIF addresses these challenges by equipping agents with generative models that capture the causal relationships between system parameters (e.g., processing configurations) and observed outcomes (e.g., SLO satisfaction). By interacting with the environment and updating beliefs, agents learn how their actions affect system behavior. This iterative action-perception cycle allows agents to adapt to their environment during their lifetime. As Sedlak et al. note in~\cite{sedlak_active_2024}, “The agent used causal knowledge to gradually develop an understanding of how its actions are related to requirements fulfillment, and which configurations to favor”.
 
-In distributed edge pipelines, AIF agents can operate locally, managing a single node or service, or hierarchically, coordinating across components to optimize system-level objectives. In both cases, adaptation is driven by minimizing EFE. This balances two goals: maximizing the probability of fulfilling preferences (i.e., SLOs and QoE goals) and reducing uncertainty about the system \cite{friston_free-energy_2010, lanillos_active_2021}. 
+In distributed edge pipelines, AIF agents can operate locally, managing a single node or service, or hierarchically, coordinating across components to optimize system-level objectives. In both cases, adaptation is driven by minimizing EFE. This balances two goals: maximizing the probability of fulfilling preferences (i.e., SLOs and QoE goals) and reducing uncertainty about the system~\cite{friston_free-energy_2010, lanillos_active_2021}. 
 
-This thesis implements a single-agent variant of this framework: an AIF controller monitors the global state of a distributed stream processing pipeline and dynamically adjusts elasticity parameters that impact the quality of the system's output. The agent intervenes when SLOs (e.g., memory constraints) approach critical levels and selects adaptations that restore compliance while improving its generative model \cite{sedlak_equilibrium_2024}.
+This thesis implements a single-agent variant of this framework: an AIF controller monitors the global state of a distributed stream processing pipeline and dynamically adjusts elasticity parameters that impact the quality of the system's output. The agent intervenes when SLOs (e.g., memory constraints) approach critical levels and selects adaptations that restore compliance while improving its generative model~\cite{sedlak_equilibrium_2024}.
 
-Although focused on a centralized AIF controller, the underlying framework is inherently extensible to multi-agent settings, where distributed agents can share beliefs or synchronize generative models. Prior work has demonstrated how such agents can collaboratively manage resources and task assignments in real-time systems while maintaining local autonomy and decentralized control \cite{sedlak_slo-aware_2025}. Such concepts will be discussed in chapter~\ref{chap:related-work}
+Although focused on a centralized AIF controller, the underlying framework is inherently extensible to multi-agent settings, where distributed agents can share beliefs or synchronize generative models. Prior work has demonstrated how such agents can collaboratively manage resources and task assignments in real-time systems while maintaining local autonomy and decentralized control~\cite{sedlak_slo-aware_2025}. Such concepts will be discussed in chapter~\ref{chap:related-work}
