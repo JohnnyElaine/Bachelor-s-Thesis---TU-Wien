@@ -27,11 +27,11 @@ Each worker simulates a bounded compute capacity by artificially delaying infere
 Metrics are sampled continuously and include SLO values and Stream quality parameters (FPS, resolution, inference quality). Each experiment lasts 450 seconds.
 
 \subsubsection{Hardware and Software}
-All simulations are executed in a controlled single-machine environment to ensure reproducibility and eliminate variance introduced by distributed hardware. The system configuration is as follows:
+All simulations are executed in a controlled single-machine environment to ensure reproducibility and eliminate variance introduced by distributed hardware. The system configuration is specified by table~\ref{tab:hardware-software}.
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\caption{Hardware and Software Configuration}
+\caption{Hardware and Software Configuration used for evalusation scenarios}
 \label{tab:hardware-software}
 \begin{tabular}{@{}ll@{}}
 \toprule
@@ -67,9 +67,15 @@ A single video stream is processed at a constant source frame rate. At the begin
 \subsection{Scenario B: Variable Computational Demand}
 \label{sec:evaluation-variable-demand}
 
-This scenario simulates a dynamic workload by varying the number of concurrent video streams during runtime. Three workers are assigned fixed computational capacities of 80\%, 75\%, and 70\%, respectively. The producer initiates multiple streams during a certain stream multiplier schedule, at key points during the runtime:
+This scenario simulates a dynamic workload by varying the number of concurrent video streams during runtime. Three workers are assigned fixed computational capacities of 80\%, 75\%, and 70\%, respectively. The producer initiates multiple streams during a certain stream multiplier schedule, at key points during the runtime, as depicted in figure~\ref{fig:eval-scenario-stream-schedule-comp-demand}.
 
+\begin{figure}[htbp]
+\centering
 \input{vector-drawings/evaluation_scenario_comp_demand}
+\caption{Step-wise stream multiplier schedule for Scenario B: Variable Computational Demand.}
+\label{fig:eval-scenario-stream-schedule-comp-demand}
+\end{figure}
+
 
 Each stream is identified by a unique \texttt{stream\_key} and processed independently through the same distributed pipeline. The worker nodes receive tasks from all streams interleaved and must process them within their capacity constraints.
 
@@ -78,7 +84,15 @@ The purpose of this scenario is to evaluate how quickly and effectively the AIF 
 \subsection{Scenario C: Variable Computation Budget}
 \label{sec:evaluation-variable-budget}
 
-This scenario evaluates controller robustness under fluctuating compute resources. The system starts with two active workers, each with 50\% compute capacity. At 33\% of the runtime, one worker is deactivated, effectively halving the available compute budget. At 66\%, the worker is reactivated, returning to the original resource budget.
+This scenario evaluates controller robustness under fluctuating compute resources. The system starts with two active workers, each with 50\% compute capacity. At 33\% of the runtime, one worker is deactivated, effectively halving the available compute budget. At 66\%, the worker is reactivated, returning to the original resource budget. This is shown in figure~\ref{fig:eval-scenario-compute-budget}.
+
+\begin{figure}[htbp]
+\centering
+\input{vector-drawings/evaluation_scenario_comp_budget}
+\caption{Available compute budget over time for Scenario C: Variable Computation Budget.}
+\label{fig:eval-scenario-compute-budget}
+\end{figure}
+
 
 This emulates a temporary node failure. The producer continues to generate tasks during the outage period, and the controller must react by reducing quality parameters to avoid SLO violations.
 
