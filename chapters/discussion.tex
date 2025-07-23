@@ -37,7 +37,12 @@ These results highlight a structural tension in edge environments: high QoE incr
 
 This suggests that agent design must carefully balance exploration and exploitation, and future work may explore adaptive preference weighting or multi-objective formulations.
 
-\section{Impact of Slow Worker Nodes on Stream Integrity}
+\section{Future Work}
+
+The current system demonstrates effective centralized control using Active Inference (AIF) to uphold Service Level Objectives (SLOs) in stream processing environments on the edge. However, certain limitations remain. The following subsections address two specific areas: the treatment of slow worker nodes and the use of local AIF agents on workers for decentralized inference optimization.
+
+
+\subsection{Impact of Slow Worker Nodes on Stream Integrity}
 
 While the load balancing strategy employed in this system ensures effective utilization of heterogeneous resources, it does not fully mitigate the detrimental effects of extremely slow worker nodes. In particular, a critical failure mode arises when a worker is consistently unable to process tasks within the temporal bounds defined by the stream's latency constraints.
 
@@ -49,7 +54,7 @@ To address this problem, the system enforces a Service Level Objective (SLO) bas
 
 However, this solution introduces a trade-off: when a single underperforming node fails to keep pace, it may trigger a global quality degradation affecting all workers. Consequently, the QoE of the entire system is diminished due to the limitations of one component. This illustrates the importance of developing more refined mitigation strategies, such as selectively excluding persistently underperforming workers or incorporating adaptive deadlines that allow for differentiated task discarding thresholds.
 
-\section{Decentralized Inference Optimization: Active Inference on Worker Nodes}
+\subsection{Decentralized Inference Optimization: Active Inference on Worker Nodes}
 
 An interesting direction for future work involves deploying Active Inference (AIF) agents locally on worker nodes to optimize inference quality settings in a decentralized manner. While the current implementation centralizes control logic within the producer node, this approach could be extended by equipping workers with autonomous decision-making capabilities, particularly for optimizing their internal configurations.
 
